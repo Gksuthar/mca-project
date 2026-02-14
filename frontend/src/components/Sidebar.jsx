@@ -1,58 +1,49 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { 
   Home, Users, BookOpen, Calendar, FileText, 
   Bell, BarChart3, Settings, LogOut, Menu, X,
   UserCheck, GraduationCap, Building2
 } from "lucide-react";
 
-const Sidebar = ({ userType }) => {
+const Sidebar = ({ userType, activePage, onPageChange }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const menuItems = {
     admin: [
-      { icon: Home, label: "Dashboard", path: "/admin" },
-      { icon: Users, label: "Students", path: "/admin?page=student" },
-      { icon: GraduationCap, label: "Faculty", path: "/admin?page=faculty" },
-      { icon: Building2, label: "Branches", path: "/admin?page=branch" },
-      { icon: BookOpen, label: "Subjects", path: "/admin?page=subjects" },
-      { icon: UserCheck, label: "Attendance", path: "/admin?page=attendance" },
-      { icon: FileText, label: "Exams", path: "/admin?page=exam" },
-      { icon: Bell, label: "Notices", path: "/admin?page=notice" },
-      { icon: Settings, label: "Admin", path: "/admin?page=admin" },
+      { icon: Home, label: "Dashboard", id: "dashboard" },
+      { icon: Users, label: "Students", id: "students" },
+      { icon: GraduationCap, label: "Faculty", id: "faculty" },
+      { icon: Building2, label: "Branches", id: "branches" },
+      { icon: BookOpen, label: "Subjects", id: "subjects" },
+      { icon: UserCheck, label: "Attendance", id: "attendance" },
+      { icon: FileText, label: "Exams", id: "exams" },
+      { icon: Bell, label: "Notices", id: "notices" },
+      { icon: Settings, label: "Admins", id: "admins" },
     ],
     faculty: [
-      { icon: Home, label: "Dashboard", path: "/faculty" },
-      { icon: Calendar, label: "Timetable", path: "/faculty?page=timetable" },
-      { icon: UserCheck, label: "Attendance", path: "/faculty?page=attendance" },
-      { icon: BarChart3, label: "Marks", path: "/faculty?page=marks" },
-      { icon: Users, label: "Students", path: "/faculty?page=student info" },
-      { icon: BookOpen, label: "Material", path: "/faculty?page=material" },
-      { icon: FileText, label: "Exams", path: "/faculty?page=exam" },
-      { icon: Bell, label: "Notices", path: "/faculty?page=notice" },
+      { icon: Home, label: "Dashboard", id: "dashboard" },
+      { icon: Calendar, label: "Timetable", id: "timetable" },
+      { icon: UserCheck, label: "Attendance", id: "attendance" },
+      { icon: BarChart3, label: "Marks", id: "marks" },
+      { icon: Users, label: "Students", id: "students" },
+      { icon: BookOpen, label: "Materials", id: "materials" },
+      { icon: FileText, label: "Exams", id: "exams" },
+      { icon: Bell, label: "Notices", id: "notices" },
     ],
     student: [
-      { icon: Home, label: "Dashboard", path: "/student" },
-      { icon: Calendar, label: "Timetable", path: "/student?page=timetable" },
-      { icon: UserCheck, label: "Attendance", path: "/student?page=attendance" },
-      { icon: BarChart3, label: "Marks", path: "/student?page=marks" },
-      { icon: BookOpen, label: "Material", path: "/student?page=material" },
-      { icon: FileText, label: "Exams", path: "/student?page=exam" },
-      { icon: Bell, label: "Notices", path: "/student?page=notice" },
+      { icon: Home, label: "Dashboard", id: "dashboard" },
+      { icon: Calendar, label: "Timetable", id: "timetable" },
+      { icon: UserCheck, label: "Attendance", id: "attendance" },
+      { icon: BarChart3, label: "Marks", id: "marks" },
+      { icon: BookOpen, label: "Materials", id: "materials" },
+      { icon: FileText, label: "Exams", id: "exams" },
+      { icon: Bell, label: "Notices", id: "notices" },
     ]
   };
 
   const items = menuItems[userType] || [];
-
-  const isActive = (path) => {
-    if (path.includes('?page=')) {
-      const page = path.split('?page=')[1];
-      return location.search.includes(page);
-    }
-    return location.pathname === path && !location.search;
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("userToken");
@@ -86,11 +77,11 @@ const Sidebar = ({ userType }) => {
         <div className="space-y-1">
           {items.map((item, index) => {
             const Icon = item.icon;
-            const active = isActive(item.path);
+            const active = activePage === item.id;
             return (
               <button
                 key={index}
-                onClick={() => navigate(item.path)}
+                onClick={() => onPageChange(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   active 
                     ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg scale-105' 

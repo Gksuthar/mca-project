@@ -1,15 +1,13 @@
 import React from "react";
 import { Bell, Search, User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
-const TopBar = ({ title, profileData }) => {
-  const navigate = useNavigate();
+const TopBar = ({ title, profileData, onProfileClick }) => {
 
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
       <div>
         <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-          {title}
+          {title || "Dashboard"}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -32,7 +30,7 @@ const TopBar = ({ title, profileData }) => {
         </button>
 
         <button 
-          onClick={() => navigate('?page=home')}
+          onClick={() => onProfileClick && onProfileClick()}
           className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 rounded-xl transition-all"
         >
           <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">

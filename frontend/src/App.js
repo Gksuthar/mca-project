@@ -3,9 +3,9 @@ import Login from "./Screens/Login";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import mystore from "./redux/store";
-import StudentHome from "./Screens/Student/Home";
-import FacultyHome from "./Screens/Faculty/Home";
-import AdminHome from "./Screens/Admin/Home";
+import StudentHome from "./Screens/Student/HomeNew";
+import FacultyHome from "./Screens/Faculty/HomeNew";
+import AdminHome from "./Screens/Admin/HomeNew";
 import ForgetPassword from "./Screens/ForgetPassword";
 import UpdatePassword from "./Screens/UpdatePassword";
 
