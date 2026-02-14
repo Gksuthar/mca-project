@@ -47,7 +47,7 @@ const AttendanceEnhanced = () => {
 
     try {
       toast.loading("Loading students...");
-      const response = await axiosWrapper.post(`/student/filter`, {
+      const response = await axiosWrapper.post(`/student/search`, {
         branchId: selectedBranch,
         semester: Number(selectedSemester)
       }, {

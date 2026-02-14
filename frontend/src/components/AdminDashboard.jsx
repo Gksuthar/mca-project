@@ -47,7 +47,7 @@ const AdminDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       const [studentsRes, facultyRes, branchesRes, subjectsRes] = await Promise.all([
-        axiosWrapper.post('/student/filter', {}, { headers: { Authorization: `Bearer ${userToken}` }}),
+        axiosWrapper.post('/student/search', {}, { headers: { Authorization: `Bearer ${userToken}` }}),
         axiosWrapper.post('/faculty/filter', {}, { headers: { Authorization: `Bearer ${userToken}` }}),
         axiosWrapper.get('/branch', { headers: { Authorization: `Bearer ${userToken}` }}),
         axiosWrapper.get('/subject', { headers: { Authorization: `Bearer ${userToken}` }})
