@@ -36,11 +36,7 @@ const getAllDetailsController = async (req, res, next) => {
   try {
     const users = await adminDetails.find().select("-__v -password");
 
-    if (!users || users.length === 0) {
-      return ApiResponse.notFound("No Admin Found").send(res);
-    }
-
-    return ApiResponse.success(users, "Admin Details Found!").send(res);
+    return ApiResponse.success(users, "Admin Details Retrieved").send(res);
   } catch (error) {
     console.error("Get Details Error: ", error);
     return ApiResponse.internalServerError().send(res);
@@ -55,6 +51,9 @@ const registerAdminController = async (req, res, next) => {
   try {
     const { email, phone } = req.body;
 
+    if (!req.file) {
+      return ApiResponse.badRequest("Profile image is required").send(res);
+    }
     const profile = req.file.filename;
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -91,7 +90,11 @@ const registerAdminController = async (req, res, next) => {
     return ApiResponse.created(sanitizedUser, "Admin Details Added!").send(res);
   } catch (error) {
     console.error("Add Details Error: ", error);
-    return ApiResponse.internalServerError().send(res);
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((err) => err.message);
+      return ApiResponse.badRequest(messages.join(", ")).send(res);
+    }
+    return ApiResponse.internalServerError(error.message).send(res);
   }
 };
 

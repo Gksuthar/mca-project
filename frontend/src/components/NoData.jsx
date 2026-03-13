@@ -10,3 +10,4 @@ const NoData = ({ title }) => {
 };
 
 export default NoData;
+

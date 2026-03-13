@@ -52,7 +52,7 @@ const Timetable = () => {
           <p
             className="flex justify-center items-center text-lg font-medium cursor-pointer hover:text-red-500 hover:scale-110 ease-linear transition-all duration-200 hover:duration-200 hover:ease-linear hover:transition-all"
             onClick={() =>
-              window.open(process.env.REACT_APP_MEDIA_LINK + "/" + timetable)
+              window.open(import.meta.env.VITE_MEDIA_URL + "/" + timetable)
             }
           >
             Download
@@ -66,7 +66,7 @@ const Timetable = () => {
       {!dataLoading && timetable && (
         <img
           className="mt-8 rounded-lg shadow-md w-[70%] mx-auto"
-          src={process.env.REACT_APP_MEDIA_LINK + "/" + timetable}
+          src={import.meta.env.VITE_MEDIA_URL + "/" + timetable}
           alt="timetable"
         />
       )}
@@ -78,3 +78,4 @@ const Timetable = () => {
 };
 
 export default Timetable;
+

@@ -51,3 +51,4 @@ const TopBar = ({ title, profileData, onProfileClick }) => {
 };
 
 export default TopBar;
+

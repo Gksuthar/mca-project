@@ -18,10 +18,6 @@ const getMaterialsController = async (req, res) => {
       .populate("branch")
       .sort({ createdAt: -1 });
 
-    if (!materials || materials.length === 0) {
-      return ApiResponse.notFound("No materials found").send(res);
-    }
-
     return ApiResponse.success(
       materials,
       "Materials retrieved successfully"

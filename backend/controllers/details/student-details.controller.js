@@ -39,11 +39,7 @@ const getAllDetailsController = async (req, res) => {
       .select("-__v -password")
       .populate("branchId");
 
-    if (!users || users.length === 0) {
-      return ApiResponse.notFound("No Student Found").send(res);
-    }
-
-    return ApiResponse.success(users, "Student Details Found!").send(res);
+    return ApiResponse.success(users, "Student Details Retrieved").send(res);
   } catch (error) {
     console.error("Get Details Error: ", error);
     return ApiResponse.internalServerError().send(res);
@@ -52,6 +48,9 @@ const getAllDetailsController = async (req, res) => {
 
 const registerStudentController = async (req, res) => {
   try {
+    if (!req.file) {
+      return ApiResponse.badRequest("Profile image is required").send(res);
+    }
     const profile = req.file.filename;
 
     const enrollmentNo = Math.floor(100000 + Math.random() * 900000);
@@ -74,7 +73,11 @@ const registerStudentController = async (req, res) => {
     );
   } catch (error) {
     console.error("Add Details Error: ", error);
-    return ApiResponse.internalServerError().send(res);
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((err) => err.message);
+      return ApiResponse.badRequest(messages.join(", ")).send(res);
+    }
+    return ApiResponse.internalServerError(error.message).send(res);
   }
 };
 
@@ -297,10 +300,6 @@ const searchStudentsController = async (req, res) => {
     const { enrollmentNo, name, semester, branch } = req.body;
     let query = {};
 
-    if (!enrollmentNo && !name && !semester && !branch) {
-      return ApiResponse.badRequest("Select at least one filter").send(res);
-    }
-
     if (enrollmentNo) {
       query.enrollmentNo = enrollmentNo;
     }
@@ -327,11 +326,7 @@ const searchStudentsController = async (req, res) => {
       .populate("branchId")
       .sort({ enrollmentNo: 1 });
 
-    if (!students || students.length === 0) {
-      return ApiResponse.notFound("No students found").send(res);
-    }
-
-    return ApiResponse.success(students, "Students found successfully").send(
+    return ApiResponse.success(students, "Students retrieved successfully").send(
       res
     );
   } catch (error) {

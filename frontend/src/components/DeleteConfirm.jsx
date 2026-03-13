@@ -34,3 +34,4 @@ const DeleteConfirm = ({ isOpen, onClose, onConfirm, message }) => {
 };
 
 export default DeleteConfirm;
+

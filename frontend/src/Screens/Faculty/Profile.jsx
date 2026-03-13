@@ -20,7 +20,7 @@ const Profile = ({ profileData }) => {
       <div className="flex items-center gap-8 mb-12 border-b pb-8 justify-between">
         <div className="flex items-center gap-8">
           <img
-            src={`${process.env.REACT_APP_MEDIA_LINK}/${profileData.profile}`}
+            src={`${import.meta.env.VITE_MEDIA_URL}/${profileData.profile}`}
             alt="Profile"
             className="w-40 h-40 rounded-full object-cover ring-4 ring-blue-500 ring-offset-4"
           />
@@ -178,3 +178,4 @@ const Profile = ({ profileData }) => {
 };
 
 export default Profile;
+

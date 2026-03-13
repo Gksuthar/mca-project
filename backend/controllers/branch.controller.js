@@ -11,10 +11,6 @@ const getBranchController = async (req, res, next) => {
         { branchId: { $regex: search, $options: "i" } },
       ],
     });
-    if (!branches || branches.length === 0) {
-      return ApiResponse.error("No Branches Found", 404).send(res);
-    }
-
     return ApiResponse.success(branches, "All Branches Loaded!").send(res);
   } catch (error) {
     return ApiResponse.error(error.message).send(res);

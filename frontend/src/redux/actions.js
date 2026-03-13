@@ -9,3 +9,4 @@ export const setUserToken = (data) => ({
   type: USER_TOKEN,
   payload: data,
 });
+

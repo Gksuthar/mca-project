@@ -118,3 +118,4 @@ const UpdatePasswordLoggedIn = ({ onClose }) => {
 };
 
 export default UpdatePasswordLoggedIn;
+

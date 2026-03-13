@@ -436,7 +436,7 @@ const Student = () => {
                       <tr key={student._id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 border-b">
                           <img
-                            src={`${process.env.REACT_APP_MEDIA_LINK}/${student.profile}`}
+                            src={`${import.meta.env.VITE_MEDIA_URL}/${student.profile}`}
                             alt={`${student.firstName}'s profile`}
                             className="w-12 h-12 object-cover rounded-full"
                             onError={(e) => {
@@ -857,3 +857,4 @@ const Student = () => {
 };
 
 export default Student;
+

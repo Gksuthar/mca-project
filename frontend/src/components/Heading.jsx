@@ -10,3 +10,4 @@ const heading = (props) => {
 };
 
 export default heading;
+

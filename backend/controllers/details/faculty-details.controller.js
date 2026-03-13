@@ -33,12 +33,38 @@ const loginFacultyController = async (req, res) => {
 const getAllFacultyController = async (req, res) => {
   try {
     const users = await facultyDetails.find().select("-__v -password");
-    if (!users || users.length === 0) {
-      return ApiResponse.notFound("No Faculty Found").send(res);
-    }
-    return ApiResponse.success(users, "Faculty Details Found!").send(res);
+    return ApiResponse.success(users, "Faculty Details Retrieved").send(res);
   } catch (error) {
     console.error("Get All Faculty Error: ", error);
+    return ApiResponse.internalServerError().send(res);
+  }
+};
+
+const filterFacultyController = async (req, res) => {
+  try {
+    const { name, email, branchId } = req.body;
+    let query = {};
+
+    if (name) {
+      query.$or = [
+        { firstName: { $regex: name, $options: "i" } },
+        { middleName: { $regex: name, $options: "i" } },
+        { lastName: { $regex: name, $options: "i" } },
+      ];
+    }
+    if (email) query.email = { $regex: email, $options: "i" };
+    if (branchId) query.branchId = branchId;
+
+    const faculty = await facultyDetails
+      .find(query)
+      .select("-password -__v")
+      .populate("branchId");
+
+    return ApiResponse.success(faculty, "Faculty filtered successfully").send(
+      res
+    );
+  } catch (error) {
+    console.error("Filter Faculty Error: ", error);
     return ApiResponse.internalServerError().send(res);
   }
 };
@@ -50,6 +76,9 @@ const generateEmployeeId = () => {
 const registerFacultyController = async (req, res) => {
   try {
     const { email, phone } = req.body;
+    if (!req.file) {
+      return ApiResponse.badRequest("Profile image is required").send(res);
+    }
     const profile = req.file.filename;
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -87,7 +116,11 @@ const registerFacultyController = async (req, res) => {
     ).send(res);
   } catch (error) {
     console.error("Register Error: ", error);
-    return ApiResponse.internalServerError().send(res);
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((err) => err.message);
+      return ApiResponse.badRequest(messages.join(", ")).send(res);
+    }
+    return ApiResponse.internalServerError(error.message).send(res);
   }
 };
 
@@ -321,6 +354,7 @@ module.exports = {
   updateFacultyController,
   deleteFacultyController,
   getAllFacultyController,
+  filterFacultyController,
   getMyFacultyDetailsController,
   sendFacultyResetPasswordEmail,
   updateFacultyPasswordHandler,

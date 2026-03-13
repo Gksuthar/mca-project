@@ -282,7 +282,7 @@ const Timetable = () => {
                 <td className="py-4 px-6">
                   <a
                     className="text-xl"
-                    href={process.env.REACT_APP_MEDIA_LINK + "/" + item.link}
+                    href={import.meta.env.VITE_MEDIA_URL + "/" + item.link}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -336,3 +336,4 @@ const Timetable = () => {
 };
 
 export default Timetable;
+

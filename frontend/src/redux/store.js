@@ -7,3 +7,4 @@ const mystore = createStore(
 );
 
 export default mystore;
+

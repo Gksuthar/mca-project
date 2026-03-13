@@ -6,6 +6,7 @@ const {
   updateFacultyController,
   deleteFacultyController,
   getAllFacultyController,
+  filterFacultyController,
   getMyFacultyDetailsController,
   sendFacultyResetPasswordEmail,
   updateFacultyPasswordHandler,
@@ -19,6 +20,7 @@ router.post("/login", loginFacultyController);
 router.get("/my-details", auth, getMyFacultyDetailsController);
 
 router.get("/", auth, getAllFacultyController);
+router.post("/filter", auth, filterFacultyController);
 router.patch("/:id", auth, upload.single("file"), updateFacultyController);
 router.delete("/:id", auth, deleteFacultyController);
 router.post("/forget-password", sendFacultyResetPasswordEmail);

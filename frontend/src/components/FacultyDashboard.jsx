@@ -218,3 +218,4 @@ const FacultyDashboard = ({ profileData }) => {
 };
 
 export default FacultyDashboard;
+
