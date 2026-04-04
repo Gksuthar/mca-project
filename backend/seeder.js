@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 const connectToMongo = require("./database/db");
 const Admin = require("./models/details/admin-details.model");
 const Faculty = require("./models/details/faculty-details.model");
@@ -76,6 +77,9 @@ const seedDatabase = async () => {
     });
     console.log("✅ Created admin user");
 
+    const hashedFacultyPassword = await bcrypt.hash("faculty123", 10);
+    const hashedStudentPassword = await bcrypt.hash("student123", 10);
+
     const faculties = await Faculty.insertMany([
       {
         employeeId: 200001,
@@ -101,7 +105,7 @@ const seedDatabase = async () => {
           relationship: "Spouse",
           phone: "9876543211"
         },
-        password: "faculty123"
+        password: hashedFacultyPassword
       },
       {
         employeeId: 200002,
@@ -127,7 +131,7 @@ const seedDatabase = async () => {
           relationship: "Spouse",
           phone: "9876543221"
         },
-        password: "faculty123"
+        password: hashedFacultyPassword
       },
       {
         employeeId: 200003,
@@ -153,7 +157,7 @@ const seedDatabase = async () => {
           relationship: "Spouse",
           phone: "9876543231"
         },
-        password: "faculty123"
+        password: hashedFacultyPassword
       }
     ]);
     console.log(`✅ Created ${faculties.length} faculty members`);
@@ -182,7 +186,7 @@ const seedDatabase = async () => {
           relationship: "Father",
           phone: "9988776656"
         },
-        password: "student123"
+        password: hashedStudentPassword
       },
       {
         enrollmentNo: 2021002,
@@ -207,7 +211,7 @@ const seedDatabase = async () => {
           relationship: "Father",
           phone: "9988776666"
         },
-        password: "student123"
+        password: hashedStudentPassword
       },
       {
         enrollmentNo: 2021003,
@@ -232,7 +236,7 @@ const seedDatabase = async () => {
           relationship: "Father",
           phone: "9988776676"
         },
-        password: "student123"
+        password: hashedStudentPassword
       },
       {
         enrollmentNo: 2021004,
@@ -257,7 +261,7 @@ const seedDatabase = async () => {
           relationship: "Father",
           phone: "9988776686"
         },
-        password: "student123"
+        password: hashedStudentPassword
       },
       {
         enrollmentNo: 2021005,
@@ -282,7 +286,7 @@ const seedDatabase = async () => {
           relationship: "Father",
           phone: "9988776696"
         },
-        password: "student123"
+        password: hashedStudentPassword
       },
       {
         enrollmentNo: 2021006,
@@ -307,7 +311,7 @@ const seedDatabase = async () => {
           relationship: "Father",
           phone: "9988776706"
         },
-        password: "student123"
+        password: hashedStudentPassword
       },
       {
         enrollmentNo: 2021007,
@@ -332,7 +336,7 @@ const seedDatabase = async () => {
           relationship: "Father",
           phone: "9988776716"
         },
-        password: "student123"
+        password: hashedStudentPassword
       },
       {
         enrollmentNo: 2021008,
@@ -357,7 +361,7 @@ const seedDatabase = async () => {
           relationship: "Father",
           phone: "9988776726"
         },
-        password: "student123"
+        password: hashedStudentPassword
       }
     ]);
     console.log(`✅ Created ${students.length} students`);

@@ -1,5 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { LogIn, Mail, Lock, User, GraduationCap, Users, Shield, BookOpen, Award } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import {
+  ArrowRight,
+  Eye,
+  EyeOff,
+  GraduationCap,
+  Lock,
+  Mail,
+  Shield,
+  Users,
+} from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { setUserToken } from "../redux/actions";
@@ -13,58 +22,77 @@ const USER_TYPES = {
 };
 
 const USER_TYPE_INFO = {
-  Student: { 
-    icon: GraduationCap, 
-    color: 'from-blue-500 to-blue-600', 
-    bgLight: 'bg-blue-50',
-    borderColor: 'border-blue-300',
-    description: 'Access your courses and grades'
+  Student: {
+    icon: GraduationCap,
+    gradient: "from-blue-600 to-cyan-500",
+    chip: "bg-blue-50 text-blue-700 border-blue-200",
+    card: "border-blue-200 hover:border-blue-300",
+    selectedCard: "ring-blue-500 border-blue-500 bg-blue-50",
+    description: "Access your courses, attendance, and grades",
   },
-  Faculty: { 
-    icon: Users, 
-    color: 'from-purple-500 to-purple-600', 
-    bgLight: 'bg-purple-50',
-    borderColor: 'border-purple-300',
-    description: 'Manage classes and students'
+  Faculty: {
+    icon: Users,
+    gradient: "from-violet-600 to-purple-500",
+    chip: "bg-violet-50 text-violet-700 border-violet-200",
+    card: "border-violet-200 hover:border-violet-300",
+    selectedCard: "ring-violet-500 border-violet-500 bg-violet-50",
+    description: "Manage classes, attendance, and marks",
   },
-  Admin: { 
-    icon: Shield, 
-    color: 'from-indigo-500 to-indigo-600', 
-    bgLight: 'bg-indigo-50',
-    borderColor: 'border-indigo-300',
-    description: 'Control and monitor system'
+  Admin: {
+    icon: Shield,
+    gradient: "from-indigo-600 to-blue-600",
+    chip: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    card: "border-indigo-200 hover:border-indigo-300",
+    selectedCard: "ring-indigo-500 border-indigo-500 bg-indigo-50",
+    description: "Control users, academics, and operations",
   },
 };
 
-const LoginForm = ({ selected, onSubmit, formData, setFormData }) => {
+const normalizeUserType = (value) => {
+  if (!value) return USER_TYPES.STUDENT;
+  const wanted = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+  return USER_TYPE_INFO[wanted] ? wanted : USER_TYPES.STUDENT;
+};
+
+const LoginForm = ({
+  selected,
+  onSubmit,
+  formData,
+  setFormData,
+  isSubmitting,
+  showPassword,
+  setShowPassword,
+}) => {
   const typeInfo = USER_TYPE_INFO[selected];
   const Icon = typeInfo.icon;
 
   return (
-    <form
-      className="w-full space-y-6 animate-fadeIn"
-      onSubmit={onSubmit}
-    >
-      <div className={`flex items-center gap-3 p-4 ${typeInfo.bgLight} rounded-xl border-2 ${typeInfo.borderColor}`}>
-        <Icon className={`text-${selected.toLowerCase()}-600`} size={24} />
+    <form className="w-full space-y-5" onSubmit={onSubmit}>
+      <div
+        className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${typeInfo.chip}`}
+      >
+        <Icon size={20} />
         <div>
-          <h3 className="font-semibold text-gray-800">{selected} Login</h3>
-          <p className="text-xs text-gray-600">{typeInfo.description}</p>
+          <h3 className="text-sm font-semibold">{selected} Login</h3>
+          <p className="text-xs opacity-80">{typeInfo.description}</p>
         </div>
       </div>
 
       <div className="space-y-2">
-        <label className="block text-gray-700 text-sm font-semibold" htmlFor="email">
+        <label className="block text-sm font-medium text-gray-700" htmlFor="email">
           Email Address
         </label>
         <div className="relative">
-          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <Mail
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            size={18}
+          />
           <input
             type="email"
             id="email"
             required
             placeholder={`Enter your ${selected.toLowerCase()} email`}
-            className="w-full pl-12 pr-4 py-3 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+            className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           />
@@ -72,25 +100,36 @@ const LoginForm = ({ selected, onSubmit, formData, setFormData }) => {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-gray-700 text-sm font-semibold" htmlFor="password">
+        <label className="block text-sm font-medium text-gray-700" htmlFor="password">
           Password
         </label>
         <div className="relative">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <Lock
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            size={18}
+          />
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             required
             placeholder="Enter your password"
-            className="w-full pl-12 pr-4 py-3 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+            className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-12 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
           />
+          <button
+            type="button"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-500 transition hover:bg-gray-100"
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+          </button>
         </div>
       </div>
 
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 cursor-pointer">
+        <label className="flex cursor-pointer items-center gap-2">
           <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
           <span className="text-sm text-gray-600">Remember me</span>
         </label>
@@ -104,15 +143,19 @@ const LoginForm = ({ selected, onSubmit, formData, setFormData }) => {
 
       <button
         type="submit"
-        className={`w-full bg-gradient-to-r ${typeInfo.color} text-white font-semibold py-3.5 rounded-xl hover:shadow-xl transition-all duration-300 flex justify-center items-center gap-2 transform hover:scale-105`}
+        disabled={isSubmitting}
+        className={`flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r ${typeInfo.gradient} py-3.5 text-sm font-semibold text-white shadow-lg transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70`}
       >
-        <LogIn size={20} />
-        Sign In
+        {isSubmitting ? "Signing in..." : "Sign In"}
+        {!isSubmitting && <ArrowRight size={18} />}
       </button>
 
-      <div className="text-center text-sm text-gray-600">
-        Don't have an account? <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-700">Sign Up</Link>
-      </div>
+      <p className="text-center text-xs text-gray-500">
+        New here?{" "}
+        <Link className="font-semibold text-indigo-600 hover:text-indigo-700" to="/signup">
+          Create account
+        </Link>
+      </p>
     </form>
   );
 };
@@ -128,15 +171,16 @@ const UserTypeSelector = ({ selected, onSelect }) => {
         return (
           <button
             key={type}
+            type="button"
             onClick={() => onSelect(type)}
-            className={`flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-300 ${
+            className={`flex flex-col items-center gap-2 rounded-xl border px-3 py-4 transition-all duration-200 ${
               isSelected
-                ? `bg-gradient-to-br ${info.color} text-white border-transparent shadow-xl transform scale-105`
-                : `${info.bgLight} ${info.borderColor} text-gray-700 hover:shadow-lg hover:scale-102`
+                ? `ring-2 ${info.selectedCard}`
+                : `bg-white text-gray-700 ${info.card}`
             }`}
           >
-            <Icon size={32} />
-            <span className="font-semibold">{type}</span>
+            <Icon size={22} />
+            <span className="text-sm font-semibold">{type}</span>
           </button>
         );
       })}
@@ -155,11 +199,13 @@ const Login = () => {
     password: "",
   });
 
-  const [selected, setSelected] = useState(USER_TYPES.STUDENT);
+  const [selected, setSelected] = useState(() => normalizeUserType(type));
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleUserTypeSelect = (type) => {
-    const userType = type.toLowerCase();
-    setSelected(type);
+  const handleUserTypeSelect = (role) => {
+    const userType = role.toLowerCase();
+    setSelected(role);
     setSearchParams({ type: userType });
   };
 
@@ -172,6 +218,7 @@ const Login = () => {
     }
 
     try {
+      setIsSubmitting(true);
       const response = await axiosWrapper.post(
         `/${selected.toLowerCase()}/login`,
         formData,
@@ -186,9 +233,16 @@ const Login = () => {
       dispatch(setUserToken(token));
       navigate(`/${selected.toLowerCase()}`);
     } catch (error) {
-      toast.dismiss();
-      console.error(error);
-      toast.error(error.response?.data?.message || "Login failed");
+      console.error("Login failed:", error);
+      if (error?.response?.status === 404) {
+        toast.error(
+          "User not found for selected role. Please check role and email."
+        );
+      } else {
+        toast.error(error.response?.data?.message || "Login failed");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -200,103 +254,42 @@ const Login = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (type) {
-      const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
-      setSelected(capitalizedType);
-    }
+    setSelected(normalizeUserType(type));
   }, [type]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center px-4 py-12">
-      {/* Animated background shapes */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-900 px-4 py-8 sm:px-6 sm:py-10 lg:px-10">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-36 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/25 blur-3xl sm:h-96 sm:w-96" />
+        <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-fuchsia-500/15 blur-3xl sm:h-80 sm:w-80" />
+        <div className="absolute right-0 top-1/3 h-64 w-64 rounded-full bg-cyan-500/15 blur-3xl sm:h-80 sm:w-80" />
       </div>
 
-      <div className="relative w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
-        {/* Left side - Branding */}
-        <div className="hidden lg:block text-center lg:text-left space-y-6">
-          <div className="inline-block p-4 bg-white bg-opacity-50 backdrop-blur-lg rounded-3xl">
-            <GraduationCap size={64} className="text-indigo-600" />
-          </div>
-          <h1 className="text-5xl font-bold text-gray-900 leading-tight">
-            College Management
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-              System
-            </span>
-          </h1>
-          <p className="text-xl text-gray-700 leading-relaxed">
-            Empowering education through seamless management and smart technology
-          </p>
-          <div className="flex gap-4 justify-center lg:justify-start">
-            <div className="p-4 bg-white bg-opacity-70 rounded-2xl backdrop-blur">
-              <Users size={32} className="text-purple-600 mb-2" />
-              <p className="text-sm font-semibold text-gray-700">500+ Students</p>
+      <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-xl items-center justify-center">
+        <section className="w-full rounded-3xl border border-slate-200/80 bg-white p-5 shadow-2xl sm:p-7 lg:p-9">
+          <div className="mb-7 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-700 text-white sm:h-14 sm:w-14">
+              <GraduationCap size={24} />
             </div>
-            <div className="p-4 bg-white bg-opacity-70 rounded-2xl backdrop-blur">
-              <BookOpen size={32} className="text-indigo-600 mb-2" />
-              <p className="text-sm font-semibold text-gray-700">50+ Courses</p>
-            </div>
-            <div className="p-4 bg-white bg-opacity-70 rounded-2xl backdrop-blur">
-              <Award size={32} className="text-pink-600 mb-2" />
-              <p className="text-sm font-semibold text-gray-700">95% Success</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Right side - Login Form */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10 backdrop-blur-lg bg-opacity-95">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome Back!
-            </h2>
-            <p className="text-gray-600">
-              Select your role and sign in to continue
-            </p>
+            <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">Welcome back</h2>
+            <p className="mt-1 text-sm text-slate-500">Select your role and sign in</p>
           </div>
 
-          <UserTypeSelector
-            selected={selected}
-            onSelect={handleUserTypeSelect}
-          />
+          <UserTypeSelector selected={selected} onSelect={handleUserTypeSelect} />
 
           <LoginForm
             selected={selected}
             onSubmit={handleSubmit}
             formData={formData}
             setFormData={setFormData}
+            isSubmitting={isSubmitting}
+            showPassword={showPassword}
+            setShowPassword={setShowPassword}
           />
-        </div>
+        </section>
       </div>
 
       <Toaster position="top-center" />
-
-      <style>{`
-        @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 };

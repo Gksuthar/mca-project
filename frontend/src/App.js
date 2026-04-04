@@ -8,14 +8,21 @@ import FacultyHome from "./Screens/Faculty/HomeNew";
 import AdminHome from "./Screens/Admin/HomeNew";
 import ForgetPassword from "./Screens/ForgetPassword";
 import UpdatePassword from "./Screens/UpdatePassword";
+import Signup from "./Screens/Signup";
 
 const App = () => {
   return (
     <>
       <Provider store={mystore}>
-        <Router>
+        <Router
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
           <Routes>
             <Route path="/" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
             <Route
               path="/:type/update-password/:resetId"

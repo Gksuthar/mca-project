@@ -9,6 +9,7 @@ import DeleteConfirm from "../../components/DeleteConfirm";
 import CustomButton from "../../components/CustomButton";
 import { MdLink } from "react-icons/md";
 import { IoMdAdd } from "react-icons/io";
+import { baseMediaURL } from "../../baseUrl";
 const Material = () => {
   const [materials, setMaterials] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -345,7 +346,7 @@ const Material = () => {
                       variant="primary"
                       onClick={() => {
                         window.open(
-                          `${import.meta.env.VITE_MEDIA_URL}/${material.file}`
+                          `${baseMediaURL()}/${material.file}`
                         );
                       }}
                     >

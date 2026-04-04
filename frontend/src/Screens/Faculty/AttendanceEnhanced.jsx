@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
+import * as faceapi from "face-api.js";
 import { Camera, Users, List, Image, CheckCircle, XCircle, Upload, Scan } from "lucide-react";
-import Heading from "../../components/Heading";
 import CustomButton from "../../components/CustomButton";
 import axiosWrapper from "../../utils/AxiosWrapper";
-import NoData from "../../components/NoData";
+import { baseMediaURL } from "../../baseUrl";
 
 const AttendanceEnhanced = () => {
   const [branches, setBranches] = useState([]);
@@ -17,14 +17,39 @@ const AttendanceEnhanced = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [recognizedStudents, setRecognizedStudents] = useState([]);
+  const [detectionResult, setDetectionResult] = useState(null);
+  const [isModelLoading, setIsModelLoading] = useState(false);
+  const [modelsLoaded, setModelsLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const labeledDescriptorsRef = useRef([]);
+  const labelMapRef = useRef({});
   const userToken = localStorage.getItem("userToken");
 
   useEffect(() => {
     getBranches();
+    loadModels();
   }, []);
+
+  const loadModels = async () => {
+    try {
+      setIsModelLoading(true);
+      const MODEL_URL = `${process.env.PUBLIC_URL || ""}/models`;
+
+      await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+      setModelsLoaded(true);
+    } catch (error) {
+      console.error("Model loading failed", error);
+      toast.error("Could not load face models. Add model files in /public/models.");
+      setModelsLoaded(false);
+    } finally {
+      setIsModelLoading(false);
+    }
+  };
 
   const getBranches = async () => {
     try {
@@ -57,6 +82,8 @@ const AttendanceEnhanced = () => {
       
       if (response.data.success && response.data.data.length > 0) {
         setStudents(response.data.data);
+        labeledDescriptorsRef.current = [];
+        labelMapRef.current = {};
         const initialAttendance = {};
         response.data.data.forEach(student => {
           initialAttendance[student._id] = "absent";
@@ -137,25 +164,149 @@ const AttendanceEnhanced = () => {
     }
   };
 
-  const processGroupPhoto = async () => {
-    setIsProcessing(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const detectedCount = Math.floor(Math.random() * (students.length - 3)) + 3;
-    const shuffled = [...students].sort(() => 0.5 - Math.random());
-    const detected = shuffled.slice(0, detectedCount);
-    
-    setRecognizedStudents(detected);
-    
-    const newAttendance = { ...attendanceData };
-    detected.forEach(student => {
-      newAttendance[student._id] = "present";
+  const loadImage = (src) =>
+    new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
     });
-    setAttendanceData(newAttendance);
-    
-    setIsProcessing(false);
-    toast.success(`Detected ${detectedCount} students in the photo!`);
+
+  const detectFaces = async (image) => {
+    const detections = await faceapi
+      .detectAllFaces(image)
+      .withFaceLandmarks()
+      .withFaceDescriptors();
+
+    console.log(detections);
+    return detections;
+  };
+
+  const getDescriptor = async (image) => {
+    const result = await faceapi
+      .detectSingleFace(image)
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    return result?.descriptor;
+  };
+
+  const buildLabeledDescriptors = async () => {
+    if (labeledDescriptorsRef.current.length > 0) {
+      return labeledDescriptorsRef.current;
+    }
+
+    const descriptors = [];
+    const labels = {};
+
+    for (const student of students) {
+      if (!student.profile) {
+        continue;
+      }
+
+      try {
+        const image = await loadImage(`${baseMediaURL()}/${student.profile}`);
+        const descriptor = await getDescriptor(image);
+
+        if (descriptor) {
+          descriptors.push(
+            new faceapi.LabeledFaceDescriptors(student._id, [descriptor])
+          );
+          labels[student._id] = `${student.firstName} ${student.lastName}`;
+        }
+      } catch (error) {
+        console.error("Error generating descriptor for student", student._id, error);
+      }
+    }
+
+    labeledDescriptorsRef.current = descriptors;
+    labelMapRef.current = labels;
+    return descriptors;
+  };
+
+  const findPerson = (groupFaces, targetDescriptors) => {
+    const faceMatcher = new faceapi.FaceMatcher(targetDescriptors);
+
+    const matches = [];
+    groupFaces.forEach((fd) => {
+      const match = faceMatcher.findBestMatch(fd.descriptor);
+      console.log(match.toString());
+      matches.push(match);
+    });
+
+    return matches;
+  };
+
+  const processGroupPhoto = async () => {
+    if (!capturedImage) {
+      toast.error("Please capture a group photo first");
+      return;
+    }
+
+    if (!modelsLoaded) {
+      toast.error("Face models are not loaded yet");
+      return;
+    }
+
+    setIsProcessing(true);
+    setDetectionResult(null);
+
+    try {
+      const knownDescriptors = await buildLabeledDescriptors();
+
+      if (!knownDescriptors.length) {
+        toast.error("No student face descriptors found. Ensure profile photos are clear.");
+        return;
+      }
+
+      const groupImage = await loadImage(capturedImage);
+      const groupFaces = await detectFaces(groupImage);
+
+      if (!groupFaces.length) {
+        setRecognizedStudents([]);
+        setDetectionResult({
+          facesDetected: 0,
+          matchedCount: 0,
+          unknownCount: 0,
+          matches: [],
+        });
+        toast.error("No faces detected in captured image");
+        return;
+      }
+
+      const matches = findPerson(groupFaces, knownDescriptors);
+      const matchedIds = matches
+        .map((m) => m.label)
+        .filter((label) => label !== "unknown");
+
+      const uniqueIds = [...new Set(matchedIds)];
+      const detected = students.filter((student) => uniqueIds.includes(student._id));
+      const unknownCount = matches.filter((m) => m.label === "unknown").length;
+
+      setRecognizedStudents(detected);
+      setDetectionResult({
+        facesDetected: groupFaces.length,
+        matchedCount: detected.length,
+        unknownCount,
+        matches: detected,
+      });
+
+      const newAttendance = { ...attendanceData };
+      detected.forEach((student) => {
+        newAttendance[student._id] = "present";
+      });
+      setAttendanceData(newAttendance);
+
+      toast.success(
+        `Detected ${groupFaces.length} face(s). Matched ${detected.length} student(s).`
+      );
+    } catch (error) {
+      console.error("Face recognition error", error);
+      toast.error("Face recognition failed. Try with clearer images.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const closeCamera = () => {
@@ -166,6 +317,7 @@ const AttendanceEnhanced = () => {
     setShowCamera(false);
     setCapturedImage(null);
     setRecognizedStudents([]);
+    setDetectionResult(null);
   };
 
   const submitAttendance = async () => {
@@ -280,6 +432,12 @@ const AttendanceEnhanced = () => {
             <Users className="mr-2" size={20} /> Load Students
           </CustomButton>
         </div>
+
+        <div className="mt-4 rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
+          {isModelLoading && "Loading face recognition models..."}
+          {!isModelLoading && modelsLoaded && "Face recognition models loaded successfully."}
+          {!isModelLoading && !modelsLoaded && "Face recognition models unavailable. Add model files to /public/models."}
+        </div>
       </div>
 
       {students.length > 0 && (
@@ -380,19 +538,41 @@ const AttendanceEnhanced = () => {
                         alt="Group" 
                         className="w-full rounded-xl shadow-lg"
                       />
-                      {recognizedStudents.length > 0 && (
-                        <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
-                          <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
-                            <CheckCircle className="text-green-600" />
-                            Detected Students ({recognizedStudents.length})
+                      {detectionResult && (
+                        <div className="rounded-xl border-2 border-indigo-200 bg-indigo-50 p-4">
+                          <h4 className="mb-3 flex items-center gap-2 font-semibold text-indigo-800">
+                            <CheckCircle className="text-indigo-600" />
+                            Detection Summary
                           </h4>
-                          <div className="flex flex-wrap gap-2">
-                            {recognizedStudents.map(student => (
-                              <span key={student._id} className="px-3 py-1 bg-green-200 text-green-800 rounded-lg text-sm font-medium">
-                                {student.firstName} {student.lastName}
-                              </span>
-                            ))}
+
+                          <div className="mb-3 grid grid-cols-1 gap-2 text-sm text-indigo-900 md:grid-cols-3">
+                            <p>
+                              Faces detected: <span className="font-semibold">{detectionResult.facesDetected}</span>
+                            </p>
+                            <p>
+                              Students matched: <span className="font-semibold">{detectionResult.matchedCount}</span>
+                            </p>
+                            <p>
+                              Unknown faces: <span className="font-semibold">{detectionResult.unknownCount}</span>
+                            </p>
                           </div>
+
+                          {detectionResult.matches.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                              {detectionResult.matches.map((student) => (
+                                <span
+                                  key={student._id}
+                                  className="rounded-lg bg-green-200 px-3 py-1 text-sm font-medium text-green-800"
+                                >
+                                  {student.firstName} {student.lastName} ({student.enrollmentNo})
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-red-600">
+                              No student matched. Make sure student profile photos are clear and front-facing.
+                            </p>
+                          )}
                         </div>
                       )}
                       <div className="flex gap-4">
@@ -400,6 +580,7 @@ const AttendanceEnhanced = () => {
                           onClick={() => {
                             setCapturedImage(null);
                             setRecognizedStudents([]);
+                            setDetectionResult(null);
                           }}
                           variant="secondary"
                           className="flex-1"
@@ -411,7 +592,7 @@ const AttendanceEnhanced = () => {
                             onClick={processGroupPhoto}
                             variant="primary"
                             className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500"
-                            disabled={isProcessing}
+                            disabled={isProcessing || !modelsLoaded}
                           >
                             {isProcessing ? (
                               <>

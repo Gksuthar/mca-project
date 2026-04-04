@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import axiosWrapper from "../../utils/AxiosWrapper";
 import DeleteConfirm from "../../components/DeleteConfirm";
 import CustomButton from "../../components/CustomButton";
+import { baseMediaURL } from "../../baseUrl";
 
 const AddTimetableModal = ({
   isOpen,
@@ -282,7 +283,7 @@ const Timetable = () => {
                 <td className="py-4 px-6">
                   <a
                     className="text-xl"
-                    href={import.meta.env.VITE_MEDIA_URL + "/" + item.link}
+                    href={baseMediaURL() + "/" + item.link}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

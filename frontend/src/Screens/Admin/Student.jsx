@@ -8,6 +8,7 @@ import axiosWrapper from "../../utils/AxiosWrapper";
 import CustomButton from "../../components/CustomButton";
 import NoData from "../../components/NoData";
 import { CgDanger } from "react-icons/cg";
+import { baseMediaURL } from "../../baseUrl";
 
 const Student = () => {
   const [searchParams, setSearchParams] = useState({
@@ -436,7 +437,7 @@ const Student = () => {
                       <tr key={student._id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 border-b">
                           <img
-                            src={`${import.meta.env.VITE_MEDIA_URL}/${student.profile}`}
+                            src={`${baseMediaURL()}/${student.profile}`}
                             alt={`${student.firstName}'s profile`}
                             className="w-12 h-12 object-cover rounded-full"
                             onError={(e) => {

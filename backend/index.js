@@ -3,15 +3,38 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const autoSeed = require("./auto-seeder");
+require("dotenv").config();
+
 connectToMongo().then(() => {
   autoSeed();
 });
-const port = 4000 || process.env.PORT;
+const port = process.env.PORT || 4000;
 var cors = require("cors");
+
+const allowedOrigins = [
+  ...(process.env.FRONTEND_API_LINK || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean),
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+];
+
+const localhostPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_API_LINK,
+    origin: (origin, callback) => {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        localhostPattern.test(origin)
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
   })
 );
 

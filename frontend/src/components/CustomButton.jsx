@@ -11,13 +11,13 @@ const CustomButton = ({
   const getVariantClasses = () => {
     switch (variant) {
       case "primary":
-        return "bg-blue-500 text-white hover:bg-blue-600";
+        return "bg-slate-900 text-white hover:bg-slate-800 border border-slate-900";
       case "secondary":
-        return "bg-gray-500 text-white hover:bg-gray-600";
+        return "bg-white text-slate-700 hover:bg-slate-50 border border-slate-300";
       case "danger":
-        return "bg-red-500 text-white hover:bg-red-600";
+        return "bg-red-600 text-white hover:bg-red-700 border border-red-600";
       default:
-        return "bg-blue-500 text-white hover:bg-blue-600";
+        return "bg-slate-900 text-white hover:bg-slate-800 border border-slate-900";
     }
   };
 
@@ -27,12 +27,11 @@ const CustomButton = ({
       onClick={onClick}
       disabled={disabled}
       className={`
-        px-4 py-2 rounded-md
+        px-4 py-2.5 rounded-lg
         font-medium text-sm
-        transition-all duration-300 ease-in-out
-        shadow-md hover:shadow-lg
-        transform hover:-translate-y-0.5
-        disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center
+        transition-all duration-200 ease-in-out
+        shadow-sm hover:shadow-md
+        disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center
         ${getVariantClasses()}
         ${className}
       `}

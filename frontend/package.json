@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.3.4",
     "debug": "^4.4.3",
+    "face-api.js": "^0.22.2",
     "lucide-react": "^0.564.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -25,7 +26,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "postinstall": "node scripts/fix-recharts-sourcemap.js && node scripts/download-face-models.js"
   },
   "eslintConfig": {
     "extends": [
@@ -47,9 +49,8 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@vitejs/plugin-react": "^5.1.4",
     "react-error-overlay": "^6.0.9",
-    "tailwindcss": "^3.2.7",
-    "vite": "^7.3.1"
+    "react-refresh": "^0.11.0",
+    "tailwindcss": "^3.2.7"
   }
 }

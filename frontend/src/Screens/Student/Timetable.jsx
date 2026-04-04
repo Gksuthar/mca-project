@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import axiosWrapper from "../../utils/AxiosWrapper";
 import { toast } from "react-hot-toast";
 import Loading from "../../components/Loading";
+import { baseMediaURL } from "../../baseUrl";
 const Timetable = () => {
   const [timetable, setTimetable] = useState("");
   const userData = useSelector((state) => state.userData);
@@ -52,7 +53,7 @@ const Timetable = () => {
           <p
             className="flex justify-center items-center text-lg font-medium cursor-pointer hover:text-red-500 hover:scale-110 ease-linear transition-all duration-200 hover:duration-200 hover:ease-linear hover:transition-all"
             onClick={() =>
-              window.open(import.meta.env.VITE_MEDIA_URL + "/" + timetable)
+              window.open(baseMediaURL() + "/" + timetable)
             }
           >
             Download
@@ -66,7 +67,7 @@ const Timetable = () => {
       {!dataLoading && timetable && (
         <img
           className="mt-8 rounded-lg shadow-md w-[70%] mx-auto"
-          src={import.meta.env.VITE_MEDIA_URL + "/" + timetable}
+          src={baseMediaURL() + "/" + timetable}
           alt="timetable"
         />
       )}

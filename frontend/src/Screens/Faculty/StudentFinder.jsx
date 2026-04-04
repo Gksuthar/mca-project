@@ -4,6 +4,7 @@ import Heading from "../../components/Heading";
 import axiosWrapper from "../../utils/AxiosWrapper";
 import CustomButton from "../../components/CustomButton";
 import NoData from "../../components/NoData";
+import { baseMediaURL } from "../../baseUrl";
 
 const StudentFinder = () => {
   const [searchParams, setSearchParams] = useState({
@@ -226,7 +227,7 @@ const StudentFinder = () => {
                     >
                       <td className="px-6 py-4 border-b">
                         <img
-                          src={`${import.meta.env.VITE_MEDIA_URL}/${student.profile}`}
+                          src={`${baseMediaURL()}/${student.profile}`}
                           alt={`${student.firstName}'s profile`}
                           className="w-12 h-12 object-cover rounded-full"
                           onError={(e) => {
@@ -283,7 +284,7 @@ const StudentFinder = () => {
               <div className="flex flex-col md:flex-row gap-8 mb-8">
                 <div className="w-full md:w-1/3">
                   <img
-                    src={`${import.meta.env.VITE_MEDIA_URL}/${selectedStudent.profile}`}
+                    src={`${baseMediaURL()}/${selectedStudent.profile}`}
                     alt={`${selectedStudent.firstName}'s profile`}
                     className="w-full h-auto object-cover rounded-lg"
                     onError={(e) => {

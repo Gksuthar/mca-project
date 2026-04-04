@@ -6,6 +6,7 @@ import axiosWrapper from "../../utils/AxiosWrapper";
 import toast from "react-hot-toast";
 import CustomButton from "../../components/CustomButton";
 import Loading from "../../components/Loading";
+import { baseMediaURL } from "../../baseUrl";
 
 const Material = () => {
   const [materials, setMaterials] = useState([]);
@@ -159,7 +160,7 @@ const Material = () => {
                         variant="primary"
                         onClick={() => {
                           window.open(
-                            `${import.meta.env.VITE_MEDIA_URL}/${material.file}`
+                            `${baseMediaURL()}/${material.file}`
                           );
                         }}
                       >

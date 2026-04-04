@@ -11,21 +11,21 @@ import axiosWrapper from "../utils/AxiosWrapper";
 import { toast } from "react-hot-toast";
 
 const StatCard = ({ icon: Icon, title, value, change, color }) => (
-  <div className={`bg-gradient-to-br ${color} rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-transform`}>
+  <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
     <div className="flex items-center justify-between mb-4">
-      <div className="p-3 bg-white bg-opacity-20 rounded-lg">
-        <Icon size={28} />
+      <div className={`p-3 rounded-xl ${color}`}>
+        <Icon size={22} className="text-slate-900" />
       </div>
       {change && (
-        <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
-          change > 0 ? 'bg-green-400 bg-opacity-30' : 'bg-red-400 bg-opacity-30'
+        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+          change > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
         }`}>
           {change > 0 ? '+' : ''}{change}%
         </span>
       )}
     </div>
-    <h3 className="text-2xl font-bold mb-1">{value}</h3>
-    <p className="text-sm opacity-90">{title}</p>
+    <h3 className="text-2xl font-bold mb-1 text-slate-900">{value}</h3>
+    <p className="text-sm text-slate-500">{title}</p>
   </div>
 );
 
@@ -108,33 +108,33 @@ const AdminDashboard = () => {
           title="Total Students"
           value={stats.totalStudents}
           change={5.2}
-          color="from-blue-500 to-blue-600"
+          color="bg-blue-100"
         />
         <StatCard
           icon={Users}
           title="Total Faculty"
           value={stats.totalFaculty}
           change={2.1}
-          color="from-purple-500 to-purple-600"
+          color="bg-violet-100"
         />
         <StatCard
           icon={BookOpen}
           title="Total Courses"
           value={stats.totalSubjects}
           change={0}
-          color="from-green-500 to-green-600"
+          color="bg-emerald-100"
         />
         <StatCard
           icon={UserCheck}
           title="Attendance Rate"
           value={`${stats.attendanceRate}%`}
           change={3.5}
-          color="from-orange-500 to-orange-600"
+          color="bg-amber-100"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Calendar className="text-indigo-500" />
             Weekly Attendance Overview
@@ -152,7 +152,7 @@ const AdminDashboard = () => {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
             <TrendingUp className="text-purple-500" />
             Students by Branch
@@ -179,7 +179,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-6 shadow-lg">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
         <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
           <Award className="text-green-500" />
           Overall Performance Trend
@@ -204,20 +204,20 @@ const AdminDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-200">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
           <Clock className="text-blue-500 mb-3" size={32} />
           <h4 className="text-2xl font-bold text-blue-900">{stats.totalBranches}</h4>
-          <p className="text-blue-700 font-medium">Active Branches</p>
+          <p className="text-slate-600 font-medium">Active Branches</p>
         </div>
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border-2 border-purple-200">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
           <Target className="text-purple-500 mb-3" size={32} />
           <h4 className="text-2xl font-bold text-purple-900">95%</h4>
-          <p className="text-purple-700 font-medium">Pass Percentage</p>
+          <p className="text-slate-600 font-medium">Pass Percentage</p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border-2 border-green-200">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
           <Award className="text-green-500 mb-3" size={32} />
           <h4 className="text-2xl font-bold text-green-900">12</h4>
-          <p className="text-green-700 font-medium">Active Exams</p>
+          <p className="text-slate-600 font-medium">Active Exams</p>
         </div>
       </div>
     </div>

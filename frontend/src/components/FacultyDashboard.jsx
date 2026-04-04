@@ -10,15 +10,15 @@ import {
 import axiosWrapper from "../utils/AxiosWrapper";
 
 const StatCard = ({ icon: Icon, title, value, subtitle, color }) => (
-  <div className={`bg-gradient-to-br ${color} rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow`}>
+  <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
     <div className="flex items-center justify-between mb-3">
-      <div className="p-3 bg-white bg-opacity-20 rounded-xl">
-        <Icon size={26} />
+      <div className={`p-3 rounded-xl ${color}`}>
+        <Icon size={20} className="text-slate-900" />
       </div>
     </div>
-    <h3 className="text-3xl font-bold mb-1">{value}</h3>
-    <p className="text-sm opacity-90 font-medium">{title}</p>
-    {subtitle && <p className="text-xs opacity-75 mt-1">{subtitle}</p>}
+    <h3 className="text-3xl font-bold mb-1 text-slate-900">{value}</h3>
+    <p className="text-sm text-slate-600 font-medium">{title}</p>
+    {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
   </div>
 );
 
@@ -55,9 +55,9 @@ const FacultyDashboard = ({ profileData }) => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl">
-        <h2 className="text-2xl font-bold mb-2">Welcome back, {profileData?.firstName}!</h2>
-        <p className="text-indigo-100">Here's what's happening with your classes today</p>
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-2xl font-bold mb-1 text-slate-900">Welcome back, {profileData?.firstName}!</h2>
+        <p className="text-slate-500">Here is an overview of your academic activity.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -66,33 +66,33 @@ const FacultyDashboard = ({ profileData }) => {
           title="Classes This Week"
           value={dashboardStats.totalClasses}
           subtitle="4 more than last week"
-          color="from-blue-500 to-blue-600"
+          color="bg-blue-100"
         />
         <StatCard
           icon={Clock}
           title="Today's Classes"
           value={dashboardStats.todayClasses}
           subtitle="Next at 10:00 AM"
-          color="from-purple-500 to-purple-600"
+          color="bg-violet-100"
         />
         <StatCard
           icon={Users}
           title="Total Students"
           value="142"
           subtitle="Across 3 subjects"
-          color="from-green-500 to-green-600"
+          color="bg-emerald-100"
         />
         <StatCard
           icon={FileText}
           title="Pending Tasks"
           value={dashboardStats.pendingTasks}
           subtitle="2 urgent"
-          color="from-orange-500 to-orange-600"
+          color="bg-amber-100"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Calendar className="text-indigo-500" />
             Weekly Class Schedule
@@ -110,7 +110,7 @@ const FacultyDashboard = ({ profileData }) => {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
             <TrendingUp className="text-green-500" />
             Attendance Trend
@@ -140,7 +140,7 @@ const FacultyDashboard = ({ profileData }) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-6 shadow-lg">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
         <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
           <BookOpen className="text-purple-500" />
           Subject Performance Overview
@@ -160,7 +160,7 @@ const FacultyDashboard = ({ profileData }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
             <CheckCircle className="text-green-500" />
             Upcoming Classes
@@ -171,7 +171,7 @@ const FacultyDashboard = ({ profileData }) => {
               { time: '02:00 PM - 03:00 PM', subject: 'DBMS', room: 'Room 205', students: 48 },
               { time: '04:00 PM - 05:00 PM', subject: 'Operating Systems', room: 'Lab 102', students: 42 }
             ].map((cls, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border-l-4 border-indigo-500">
+              <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
                 <div>
                   <h4 className="font-semibold text-gray-800">{cls.subject}</h4>
                   <p className="text-sm text-gray-600">{cls.time} • {cls.room}</p>
@@ -185,7 +185,7 @@ const FacultyDashboard = ({ profileData }) => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
             <AlertCircle className="text-orange-500" />
             Pending Tasks

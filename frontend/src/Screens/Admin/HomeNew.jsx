@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -26,7 +26,7 @@ const AdminHome = () => {
   const [isLoading, setIsLoading] = useState(false);
   const userToken = localStorage.getItem("userToken");
 
-  const fetchUserDetails = async () => {
+  const fetchUserDetails = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await axiosWrapper.get(`/admin/my-details`, {
@@ -38,15 +38,20 @@ const AdminHome = () => {
       }
     } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Error fetching user details");
+      if (error?.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+        navigate("/");
+        return;
+      }
+      setProfileData((prev) => prev || { firstName: "Admin", email: "" });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dispatch, navigate, userToken]);
 
   useEffect(() => {
     fetchUserDetails();
-  }, []);
+  }, [fetchUserDetails]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -94,16 +99,24 @@ const AdminHome = () => {
     }
   };
 
+  const isDashboardPage = activePage === "dashboard";
+
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="app-page-shell">
       <Sidebar userType="admin" activePage={activePage} onPageChange={handlePageChange} />
       
-      <div className="flex-1 flex flex-col overflow-hidden ml-64">
+      <div className="app-main-panel">
         <TopBar profileData={profileData} onProfileClick={() => handlePageChange('profile')} />
         
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-7xl mx-auto">
-            {renderContent()}
+        <main className="app-main-content">
+          <div className="app-main-container">
+            {isDashboardPage ? (
+              renderContent()
+            ) : (
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                {renderContent()}
+              </div>
+            )}
           </div>
         </main>
       </div>

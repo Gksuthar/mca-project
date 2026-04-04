@@ -11,12 +11,100 @@
 @tailwind utilities;
 
 @layer base {
+  body {
+    @apply bg-slate-100 text-slate-800 antialiased;
+  }
+
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
 }
+
+@layer components {
+  .app-page-shell {
+    @apply flex h-screen bg-slate-100;
+  }
+
+  .app-main-panel {
+    @apply flex-1 flex flex-col overflow-hidden ml-64;
+  }
+
+  .app-main-content {
+    @apply flex-1 overflow-y-auto p-6;
+  }
+
+  .app-main-container {
+    @apply max-w-7xl mx-auto;
+  }
+
+  .app-main-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+  .app-main-content select,
+  .app-main-content textarea {
+    @apply rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none transition;
+  }
+
+  .app-main-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+  .app-main-content select:focus,
+  .app-main-content textarea:focus {
+    @apply border-blue-500 ring-2 ring-blue-100;
+  }
+
+  .app-main-content label {
+    @apply text-slate-700;
+  }
+
+  .app-main-content table {
+    @apply w-full border-separate border-spacing-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm;
+  }
+
+  .app-main-content table thead tr {
+    @apply !bg-slate-900 !text-white;
+  }
+
+  .app-main-content table th,
+  .app-main-content table td {
+    @apply px-4 py-3 text-sm;
+  }
+
+  .app-main-content table tbody tr {
+    @apply border-b border-slate-100;
+  }
+
+  .app-main-content table tbody tr:hover {
+    @apply !bg-slate-50;
+  }
+
+  .app-main-content [class*="fixed inset-0 bg-black"] {
+    background: rgba(15, 23, 42, 0.55) !important;
+    backdrop-filter: blur(2px);
+  }
+
+  .app-main-content [class*="fixed inset-0 bg-black"] > div[class*="bg-white"] {
+    @apply rounded-2xl border border-slate-200 shadow-xl;
+  }
+
+  .app-main-content h2.text-2xl,
+  .app-main-content h3.text-xl {
+    @apply text-slate-900;
+  }
+}
+
 ::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

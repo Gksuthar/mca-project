@@ -52,22 +52,22 @@ const Sidebar = ({ userType, activePage, onPageChange }) => {
   };
 
   return (
-    <div className={`${collapsed ? 'w-20' : 'w-64'} min-h-screen bg-gradient-to-b from-indigo-900 via-purple-900 to-indigo-800 text-white transition-all duration-300 flex flex-col fixed left-0 top-0 z-50 shadow-2xl`}>
-      <div className="p-4 flex items-center justify-between border-b border-white/10">
+    <div className={`${collapsed ? 'w-20' : 'w-64'} min-h-screen bg-slate-950 text-slate-100 transition-all duration-300 flex flex-col fixed left-0 top-0 z-50 border-r border-slate-800`}>
+      <div className="p-4 flex items-center justify-between border-b border-slate-800">
         {!collapsed && (
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 bg-slate-100 text-slate-900 rounded-xl flex items-center justify-center shadow-md">
               <GraduationCap size={24} />
             </div>
             <div>
               <h1 className="font-bold text-lg">EduTrack</h1>
-              <p className="text-xs text-white/60">Management System</p>
+              <p className="text-xs text-slate-400">Management System</p>
             </div>
           </div>
         )}
         <button 
           onClick={() => setCollapsed(!collapsed)}
-          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
         >
           {collapsed ? <Menu size={20} /> : <X size={20} />}
         </button>
@@ -84,8 +84,8 @@ const Sidebar = ({ userType, activePage, onPageChange }) => {
                 onClick={() => onPageChange(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   active 
-                    ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg scale-105' 
-                    : 'hover:bg-white/10 text-white/80 hover:text-white'
+                    ? 'bg-slate-100 text-slate-900 shadow-sm' 
+                    : 'hover:bg-slate-800 text-slate-300 hover:text-white'
                 }`}
               >
                 <Icon size={20} className="flex-shrink-0" />
@@ -98,10 +98,10 @@ const Sidebar = ({ userType, activePage, onPageChange }) => {
         </div>
       </div>
 
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-slate-800">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-200 hover:text-white transition-all"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-red-950/40 hover:bg-red-900/50 text-red-300 hover:text-red-100 transition-all"
         >
           <LogOut size={20} />
           {!collapsed && <span className="font-medium text-sm">Logout</span>}

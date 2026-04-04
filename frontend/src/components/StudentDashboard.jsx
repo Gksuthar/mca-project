@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { 
   LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
@@ -9,15 +9,15 @@ import {
 } from 'lucide-react';
 
 const StatCard = ({ icon: Icon, title, value, subtitle, color }) => (
-  <div className={`bg-gradient-to-br ${color} rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all hover:scale-105`}>
+  <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-all">
     <div className="flex items-center justify-between mb-3">
-      <div className="p-3 bg-white bg-opacity-20 rounded-xl">
-        <Icon size={26} />
+      <div className={`p-3 rounded-xl ${color}`}>
+        <Icon size={20} className="text-slate-900" />
       </div>
     </div>
-    <h3 className="text-3xl font-bold mb-1">{value}</h3>
-    <p className="text-sm opacity-90 font-medium">{title}</p>
-    {subtitle && <p className="text-xs opacity-75 mt-1">{subtitle}</p>}
+    <h3 className="text-3xl font-bold mb-1 text-slate-900">{value}</h3>
+    <p className="text-sm text-slate-600 font-medium">{title}</p>
+    {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
   </div>
 );
 
@@ -55,9 +55,9 @@ const StudentDashboard = ({ profileData }) => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl">
-        <h2 className="text-2xl font-bold mb-2">Welcome back, {profileData?.firstName}!</h2>
-        <p className="text-blue-100">Keep up the great work! Here's your academic progress</p>
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-2xl font-bold mb-1 text-slate-900">Welcome back, {profileData?.firstName}!</h2>
+        <p className="text-slate-500">Track your progress with a clear academic overview.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -66,33 +66,33 @@ const StudentDashboard = ({ profileData }) => {
           title="Current CGPA"
           value="8.5"
           subtitle="↑ 0.3 from last sem"
-          color="from-blue-500 to-blue-600"
+          color="bg-blue-100"
         />
         <StatCard
           icon={CheckCircle}
           title="Attendance"
           value="87%"
           subtitle="3% above average"
-          color="from-green-500 to-green-600"
+          color="bg-emerald-100"
         />
         <StatCard
           icon={BookOpen}
           title="Enrolled Courses"
           value="6"
           subtitle="20 credits total"
-          color="from-purple-500 to-purple-600"
+          color="bg-violet-100"
         />
         <StatCard
           icon={Target}
           title="Assignments"
           value="2"
           subtitle="Due this week"
-          color="from-orange-500 to-orange-600"
+          color="bg-amber-100"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
             <TrendingUp className="text-indigo-500" />
             Subject-wise Performance
@@ -109,7 +109,7 @@ const StudentDashboard = ({ profileData }) => {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Calendar className="text-green-500" />
             Attendance Trend
@@ -134,7 +134,7 @@ const StudentDashboard = ({ profileData }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Star className="text-yellow-500" />
             Skills Assessment
@@ -157,7 +157,7 @@ const StudentDashboard = ({ profileData }) => {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Award className="text-blue-500" />
             CGPA Progress
@@ -182,7 +182,7 @@ const StudentDashboard = ({ profileData }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
             <Clock className="text-purple-500" />
             Upcoming Classes Today
@@ -193,7 +193,7 @@ const StudentDashboard = ({ profileData }) => {
               { time: '11:00 AM', subject: 'DBMS Lab', room: 'Lab 102', type: 'Practical' },
               { time: '02:00 PM', subject: 'Operating Systems', room: 'Room 205', type: 'Lecture' }
             ].map((cls, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border-l-4 border-indigo-500">
+              <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
                 <div>
                   <h4 className="font-semibold text-gray-800">{cls.subject}</h4>
                   <p className="text-sm text-gray-600">{cls.time} • {cls.room}</p>
@@ -206,7 +206,7 @@ const StudentDashboard = ({ profileData }) => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
             <AlertCircle className="text-orange-500" />
             Pending Tasks
@@ -236,20 +236,20 @@ const StudentDashboard = ({ profileData }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-200">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
           <BookOpen className="text-blue-500 mb-3" size={32} />
           <h4 className="text-2xl font-bold text-blue-900">24</h4>
-          <p className="text-blue-700 font-medium">Study Hours This Week</p>
+          <p className="text-slate-600 font-medium">Study Hours This Week</p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border-2 border-green-200">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
           <CheckCircle className="text-green-500 mb-3" size={32} />
           <h4 className="text-2xl font-bold text-green-900">15/18</h4>
-          <p className="text-green-700 font-medium">Assignments Completed</p>
+          <p className="text-slate-600 font-medium">Assignments Completed</p>
         </div>
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border-2 border-purple-200">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
           <Star className="text-purple-500 mb-3" size={32} />
           <h4 className="text-2xl font-bold text-purple-900">3rd</h4>
-          <p className="text-purple-700 font-medium">Class Rank</p>
+          <p className="text-slate-600 font-medium">Class Rank</p>
         </div>
       </div>
     </div>
