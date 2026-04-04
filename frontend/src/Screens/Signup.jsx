@@ -5,146 +5,59 @@ import toast, { Toaster } from "react-hot-toast";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    role: "Student",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
+  const [formData, setFormData] = useState({ fullName: "", email: "", phone: "", role: "Student", password: "", confirmPassword: "" });
+  const handleChange = (e) => { const { name, value } = e.target; setFormData((p) => ({ ...p, [name]: value })); };
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!formData.fullName || !formData.email || !formData.phone || !formData.password) {
-      toast.error("Please fill all fields");
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
-    toast.success("Signup request noted. Please contact admin to create your account.");
-    setTimeout(() => navigate("/"), 1200);
+    if (!formData.fullName || !formData.email || !formData.phone || !formData.password) { toast.error("Please fill all fields"); return; }
+    if (formData.password !== formData.confirmPassword) { toast.error("Passwords do not match"); return; }
+    toast.success("Signup request noted. Please contact admin."); setTimeout(() => navigate("/"), 1200);
   };
-
+  const inp = { background: "#0B0F19", border: "1px solid #1F2937", color: "#E5E7EB" };
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-900 px-4 py-8 sm:px-6 sm:py-10 lg:px-10">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-36 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/25 blur-3xl sm:h-96 sm:w-96" />
-        <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-fuchsia-500/15 blur-3xl sm:h-80 sm:w-80" />
-      </div>
-
-      <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-xl items-center justify-center">
-        <section className="w-full rounded-3xl border border-slate-200/80 bg-white p-5 shadow-2xl sm:p-7 lg:p-9">
-          <div className="mb-7 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-700 text-white sm:h-14 sm:w-14">
-              <GraduationCap size={24} />
-            </div>
-            <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">Create account</h2>
-            <p className="mt-1 text-sm text-slate-500">Full-page signup experience</p>
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#0B0F19" }}>
+      <div className="fixed inset-0 pointer-events-none opacity-[0.02]" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+      <div className="relative w-full max-w-[400px] animate-fade-in">
+        <div className="rounded-xl p-7" style={{ background: "#111827", border: "1px solid #1F2937" }}>
+          <div className="text-center mb-6">
+            <div className="w-11 h-11 rounded-lg mx-auto mb-3 flex items-center justify-center" style={{ background: "#7C3AED" }}><GraduationCap size={22} color="#fff" /></div>
+            <h1 className="text-xl font-bold" style={{ color: "#F3F4F6" }}>Create Account</h1>
+            <p className="text-xs mt-1" style={{ color: "#6B7280" }}>Sign up to get started</p>
           </div>
-
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="relative">
-              <User className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                name="fullName"
-                type="text"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="Full name"
-                className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-              />
-            </div>
-
-            <div className="relative">
-              <Mail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Email address"
-                className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-              />
-            </div>
-
-            <div className="relative">
-              <Phone className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Phone number"
-                className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-              />
-            </div>
-
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-            >
-              <option>Student</option>
-              <option>Faculty</option>
-              <option>Admin</option>
+          <form className="space-y-3.5" onSubmit={handleSubmit}>
+            {[
+              { name: "fullName", icon: User, ph: "Full name", type: "text" },
+              { name: "email", icon: Mail, ph: "Email address", type: "email" },
+              { name: "phone", icon: Phone, ph: "Phone number", type: "tel" },
+            ].map((f) => (
+              <div key={f.name} className="relative">
+                <f.icon size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#4B5563" }} />
+                <input name={f.name} type={f.type} value={formData[f.name]} onChange={handleChange} placeholder={f.ph}
+                  className="w-full py-2.5 pl-9 pr-3 rounded-lg text-sm outline-none" style={inp} />
+              </div>
+            ))}
+            <select name="role" value={formData.role} onChange={handleChange} className="w-full py-2.5 px-3 rounded-lg text-sm outline-none" style={inp}>
+              <option>Student</option><option>Faculty</option><option>Admin</option>
             </select>
-
-            <div className="relative">
-              <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Password"
-                className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-              />
-            </div>
-
-            <div className="relative">
-              <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                name="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm password"
-                className="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 py-3.5 text-sm font-semibold text-white shadow-lg transition hover:opacity-95"
-            >
-              Sign Up <ArrowRight size={18} />
+            {["password", "confirmPassword"].map((n) => (
+              <div key={n} className="relative">
+                <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#4B5563" }} />
+                <input name={n} type="password" value={formData[n]} onChange={handleChange}
+                  placeholder={n === "password" ? "Password" : "Confirm password"}
+                  className="w-full py-2.5 pl-9 pr-3 rounded-lg text-sm outline-none" style={inp} />
+              </div>
+            ))}
+            <button type="submit" className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ background: "#7C3AED" }}>
+              Sign Up <ArrowRight size={15} />
             </button>
           </form>
-
-          <p className="mt-4 text-center text-xs text-gray-500">
-            Already have an account?{" "}
-            <Link className="font-semibold text-indigo-600 hover:text-indigo-700" to="/">
-              Sign in
-            </Link>
+          <p className="text-center mt-4 text-xs" style={{ color: "#6B7280" }}>
+            Already have an account? <Link to="/" className="font-semibold" style={{ color: "#7C3AED" }}>Sign in</Link>
           </p>
-        </section>
+        </div>
       </div>
-
-      <Toaster position="top-center" />
+      <Toaster position="top-center" toastOptions={{ style: { background: "#1F2937", color: "#F3F4F6", border: "1px solid #374151", fontSize: 13 } }} />
     </div>
   );
 };
-
 export default Signup;

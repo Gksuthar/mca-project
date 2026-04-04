@@ -17,6 +17,19 @@ import Notice from "../Notice";
 import Profile from "./Profile";
 import Exam from "../Exam";
 
+const pageTitles = {
+  dashboard: "Dashboard",
+  profile: "Profile",
+  students: "Student Management",
+  faculty: "Faculty Management",
+  branches: "Branch Management",
+  subjects: "Subject Management",
+  attendance: "Attendance",
+  notices: "Notices",
+  exams: "Examinations",
+  admins: "Admin Management",
+};
+
 const AdminHome = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,7 +50,6 @@ const AdminHome = () => {
         dispatch(setUserData(response.data.data));
       }
     } catch (error) {
-      console.error(error);
       if (error?.response?.status === 401) {
         toast.error("Session expired. Please login again.");
         navigate("/");
@@ -49,14 +61,10 @@ const AdminHome = () => {
     }
   }, [dispatch, navigate, userToken]);
 
+  useEffect(() => { fetchUserDetails(); }, [fetchUserDetails]);
   useEffect(() => {
-    fetchUserDetails();
-  }, [fetchUserDetails]);
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const page = urlParams.get("page") || "dashboard";
-    setActivePage(page);
+    const p = new URLSearchParams(location.search).get("page") || "dashboard";
+    setActivePage(p);
   }, [location.search]);
 
   const handlePageChange = (page) => {
@@ -65,66 +73,40 @@ const AdminHome = () => {
   };
 
   const renderContent = () => {
-    if (isLoading) {
-      return (
-        <div className="flex justify-center items-center h-96">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600"></div>
-        </div>
-      );
-    }
-
+    if (isLoading) return <div className="flex justify-center items-center h-60"><div className="animate-spin rounded-full h-8 w-8" style={{ border: "2px solid #1F2937", borderTop: "2px solid #7C3AED" }} /></div>;
     switch (activePage) {
-      case "dashboard":
-        return <AdminDashboard />;
-      case "profile":
-        return profileData ? <Profile profileData={profileData} /> : null;
-      case "students":
-        return <Student />;
-      case "faculty":
-        return <Faculty />;
-      case "branches":
-        return <Branch />;
-      case "subjects":
-        return <Subjects />;
-      case "attendance":
-        return <Attendance />;
-      case "notices":
-        return <Notice />;
-      case "exams":
-        return <Exam />;
-      case "admins":
-        return <Admin />;
-      default:
-        return <AdminDashboard />;
+      case "dashboard": return <AdminDashboard />;
+      case "profile": return profileData ? <Profile profileData={profileData} /> : null;
+      case "students": return <Student />;
+      case "faculty": return <Faculty />;
+      case "branches": return <Branch />;
+      case "subjects": return <Subjects />;
+      case "attendance": return <Attendance />;
+      case "notices": return <Notice />;
+      case "exams": return <Exam />;
+      case "admins": return <Admin />;
+      default: return <AdminDashboard />;
     }
   };
-
-  const isDashboardPage = activePage === "dashboard";
 
   return (
     <div className="app-page-shell">
       <Sidebar userType="admin" activePage={activePage} onPageChange={handlePageChange} />
-      
       <div className="app-main-panel">
-        <TopBar profileData={profileData} onProfileClick={() => handlePageChange('profile')} />
-        
+        <TopBar title={pageTitles[activePage] || "Dashboard"} profileData={profileData} onProfileClick={() => handlePageChange("profile")} />
         <main className="app-main-content">
           <div className="app-main-container">
-            {isDashboardPage ? (
-              renderContent()
-            ) : (
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            {activePage === "dashboard" ? renderContent() : (
+              <div className="rounded-lg p-5" style={{ background: "#111827", border: "1px solid #1F2937" }}>
                 {renderContent()}
               </div>
             )}
           </div>
         </main>
       </div>
-      
-      <Toaster position="top-center" />
+      <Toaster position="top-center" toastOptions={{ style: { background: "#1F2937", color: "#F3F4F6", border: "1px solid #374151", fontSize: 13 } }} />
     </div>
   );
 };
 
 export default AdminHome;
-

@@ -8,17 +8,10 @@ const CustomButton = ({
   className = "",
   variant = "primary",
 }) => {
-  const getVariantClasses = () => {
-    switch (variant) {
-      case "primary":
-        return "bg-slate-900 text-white hover:bg-slate-800 border border-slate-900";
-      case "secondary":
-        return "bg-white text-slate-700 hover:bg-slate-50 border border-slate-300";
-      case "danger":
-        return "bg-red-600 text-white hover:bg-red-700 border border-red-600";
-      default:
-        return "bg-slate-900 text-white hover:bg-slate-800 border border-slate-900";
-    }
+  const styles = {
+    primary: { background: "#7C3AED", color: "#fff", border: "1px solid #7C3AED" },
+    secondary: { background: "#1F2937", color: "#D1D5DB", border: "1px solid #374151" },
+    danger: { background: "#7F1D1D", color: "#FCA5A5", border: "1px solid #991B1B" },
   };
 
   return (
@@ -26,15 +19,8 @@ const CustomButton = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`
-        px-4 py-2.5 rounded-lg
-        font-medium text-sm
-        transition-all duration-200 ease-in-out
-        shadow-sm hover:shadow-md
-        disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center
-        ${getVariantClasses()}
-        ${className}
-      `}
+      className={`px-4 py-2 rounded-lg font-medium text-sm transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 ${className}`}
+      style={styles[variant] || styles.primary}
     >
       {children}
     </button>
@@ -42,4 +28,3 @@ const CustomButton = ({
 };
 
 export default CustomButton;
-

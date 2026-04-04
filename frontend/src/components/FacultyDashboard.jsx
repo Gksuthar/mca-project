@@ -1,215 +1,202 @@
-import React, { useEffect, useState } from "react";
-import { 
-  LineChart, Line, BarChart, Bar, AreaChart, Area,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
-} from 'recharts';
-import { 
+import React from "react";
+import {
+  BarChart, Bar, AreaChart, Area,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from "recharts";
+import {
   Users, BookOpen, Calendar, Clock, FileText,
-  CheckCircle, AlertCircle, TrendingUp
-} from 'lucide-react';
-import axiosWrapper from "../utils/AxiosWrapper";
+  CheckCircle, AlertTriangle, ChevronRight,
+} from "lucide-react";
 
-const StatCard = ({ icon: Icon, title, value, subtitle, color }) => (
-  <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
-    <div className="flex items-center justify-between mb-3">
-      <div className={`p-3 rounded-xl ${color}`}>
-        <Icon size={20} className="text-slate-900" />
-      </div>
-    </div>
-    <h3 className="text-3xl font-bold mb-1 text-slate-900">{value}</h3>
-    <p className="text-sm text-slate-600 font-medium">{title}</p>
-    {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
-  </div>
-);
+const ORANGE = "#E85D04";
+const ORANGE_L = "#F97316";
+const CARD = "#111827";
+const BORDER = "#1F2937";
+const TXT = "#F3F4F6";
+const TXT2 = "#9CA3AF";
+const TXT3 = "#6B7280";
+const tp = {
+  contentStyle: { background: "#1F2937", border: "1px solid #374151", borderRadius: 8, color: TXT },
+};
 
 const FacultyDashboard = ({ profileData }) => {
-  const [dashboardStats, setDashboardStats] = useState({
-    totalClasses: 24,
-    todayClasses: 3,
-    studentsCount: 0,
-    pendingTasks: 5
-  });
-
   const classesData = [
-    { day: 'Mon', classes: 4, hours: 4 },
-    { day: 'Tue', classes: 3, hours: 3 },
-    { day: 'Wed', classes: 5, hours: 5 },
-    { day: 'Thu', classes: 3, hours: 3 },
-    { day: 'Fri', classes: 4, hours: 4 },
+    { day: "Mon", val: 4 }, { day: "Tue", val: 3 }, { day: "Wed", val: 5 },
+    { day: "Thu", val: 3 }, { day: "Fri", val: 4 },
   ];
-
   const attendanceTrend = [
-    { week: 'Week 1', rate: 82 },
-    { week: 'Week 2', rate: 85 },
-    { week: 'Week 3', rate: 88 },
-    { week: 'Week 4', rate: 86 },
-    { week: 'Week 5', rate: 90 },
+    { w: "W1", rate: 82 }, { w: "W2", rate: 85 }, { w: "W3", rate: 88 },
+    { w: "W4", rate: 86 }, { w: "W5", rate: 90 },
   ];
 
-  const subjectPerformance = [
-    { subject: 'DSA', avg: 85, students: 45 },
-    { subject: 'DBMS', avg: 78, students: 48 },
-    { subject: 'OS', avg: 82, students: 42 },
-    { subject: 'CN', avg: 80, students: 50 },
+  const upcoming = [
+    { time: "10:00 AM", subject: "Data Structures", room: "301", students: 45 },
+    { time: "02:00 PM", subject: "DBMS", room: "205", students: 48 },
+    { time: "04:00 PM", subject: "Operating Systems", room: "Lab 102", students: 42 },
+  ];
+
+  const tasks = [
+    { task: "Grade DSA Mid-Term Papers", priority: "high", due: "Today" },
+    { task: "Upload Study Material for OS", priority: "medium", due: "Tomorrow" },
+    { task: "Prepare DBMS Quiz Questions", priority: "low", due: "3 days" },
+    { task: "Review Student Assignments", priority: "medium", due: "2 days" },
+  ];
+
+  const subjects = [
+    { name: "Data Structures", avg: 85, students: 45, trend: "+3" },
+    { name: "DBMS", avg: 78, students: 48, trend: "-1" },
+    { name: "Operating Systems", avg: 82, students: 42, trend: "+5" },
+    { name: "Computer Networks", avg: 80, students: 50, trend: "+2" },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-2xl font-bold mb-1 text-slate-900">Welcome back, {profileData?.firstName}!</h2>
-        <p className="text-slate-500">Here is an overview of your academic activity.</p>
+    <div className="animate-fade-in space-y-5">
+      {/* ── Welcome + Quick stats row ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="lg:col-span-2 rounded-lg p-5 relative overflow-hidden" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 -mr-8 -mt-8" style={{ background: ORANGE }} />
+          <p className="text-lg font-bold relative" style={{ color: TXT }}>
+            Welcome, {profileData?.firstName || "Faculty"}
+          </p>
+          <p className="text-xs mt-1 relative" style={{ color: TXT3 }}>You have 3 classes and 5 tasks pending today</p>
+          <div className="flex gap-6 mt-4 relative">
+            <div>
+              <p className="text-2xl font-bold" style={{ color: ORANGE }}>24</p>
+              <p className="text-[10px]" style={{ color: TXT3 }}>Weekly Classes</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold" style={{ color: TXT }}>142</p>
+              <p className="text-[10px]" style={{ color: TXT3 }}>Total Students</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold" style={{ color: TXT }}>88%</p>
+              <p className="text-[10px]" style={{ color: TXT3 }}>Avg Attendance</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg p-5" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+          <div className="flex items-center gap-2 mb-2">
+            <Calendar size={14} style={{ color: ORANGE }} />
+            <p className="text-xs font-semibold" style={{ color: TXT2 }}>Today's Schedule</p>
+          </div>
+          <p className="text-3xl font-bold" style={{ color: TXT }}>3</p>
+          <p className="text-[10px] mt-0.5" style={{ color: TXT3 }}>Classes remaining</p>
+          <div className="mt-3 flex items-center gap-1">
+            <Clock size={11} style={{ color: ORANGE }} />
+            <span className="text-[10px]" style={{ color: ORANGE }}>Next: 10:00 AM — DSA</span>
+          </div>
+        </div>
+
+        <div className="rounded-lg p-5" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle size={14} style={{ color: "#F59E0B" }} />
+            <p className="text-xs font-semibold" style={{ color: TXT2 }}>Pending Tasks</p>
+          </div>
+          <p className="text-3xl font-bold" style={{ color: TXT }}>5</p>
+          <p className="text-[10px] mt-0.5" style={{ color: TXT3 }}>2 urgent, 3 normal</p>
+          <div className="mt-3 flex gap-1">
+            <span className="w-2 h-2 rounded-full" style={{ background: "#EF4444" }} />
+            <span className="w-2 h-2 rounded-full" style={{ background: "#EF4444" }} />
+            <span className="w-2 h-2 rounded-full" style={{ background: "#F59E0B" }} />
+            <span className="w-2 h-2 rounded-full" style={{ background: "#F59E0B" }} />
+            <span className="w-2 h-2 rounded-full" style={{ background: "#22C55E" }} />
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          icon={Calendar}
-          title="Classes This Week"
-          value={dashboardStats.totalClasses}
-          subtitle="4 more than last week"
-          color="bg-blue-100"
-        />
-        <StatCard
-          icon={Clock}
-          title="Today's Classes"
-          value={dashboardStats.todayClasses}
-          subtitle="Next at 10:00 AM"
-          color="bg-violet-100"
-        />
-        <StatCard
-          icon={Users}
-          title="Total Students"
-          value="142"
-          subtitle="Across 3 subjects"
-          color="bg-emerald-100"
-        />
-        <StatCard
-          icon={FileText}
-          title="Pending Tasks"
-          value={dashboardStats.pendingTasks}
-          subtitle="2 urgent"
-          color="bg-amber-100"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <Calendar className="text-indigo-500" />
-            Weekly Class Schedule
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={classesData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="classes" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="hours" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+      {/* ── Charts ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div className="lg:col-span-2 rounded-lg p-5" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+          <p className="text-sm font-semibold mb-4" style={{ color: TXT }}>Weekly Classes</p>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={classesData} barCategoryGap="30%">
+              <CartesianGrid strokeDasharray="3 3" stroke={BORDER} />
+              <XAxis dataKey="day" stroke={TXT3} fontSize={11} tickLine={false} />
+              <YAxis stroke={TXT3} fontSize={11} tickLine={false} />
+              <Tooltip {...tp} />
+              <Bar dataKey="val" fill={ORANGE} radius={[4, 4, 0, 0]} name="Classes" />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <TrendingUp className="text-green-500" />
-            Attendance Trend
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="lg:col-span-3 rounded-lg p-5" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+          <p className="text-sm font-semibold mb-4" style={{ color: TXT }}>Attendance Trend</p>
+          <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={attendanceTrend}>
               <defs>
-                <linearGradient id="colorRate" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                <linearGradient id="orangeG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={ORANGE} stopOpacity={0.2} />
+                  <stop offset="100%" stopColor={ORANGE} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="week" />
-              <YAxis />
-              <Tooltip />
-              <Area 
-                type="monotone" 
-                dataKey="rate" 
-                stroke="#10b981" 
-                strokeWidth={3}
-                fillOpacity={1} 
-                fill="url(#colorRate)" 
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke={BORDER} />
+              <XAxis dataKey="w" stroke={TXT3} fontSize={11} tickLine={false} />
+              <YAxis stroke={TXT3} fontSize={11} tickLine={false} domain={[70, 100]} />
+              <Tooltip {...tp} />
+              <Area type="monotone" dataKey="rate" stroke={ORANGE} strokeWidth={2} fill="url(#orangeG)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <BookOpen className="text-purple-500" />
-          Subject Performance Overview
-        </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={subjectPerformance}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="subject" />
-            <YAxis yAxisId="left" orientation="left" stroke="#8b5cf6" />
-            <YAxis yAxisId="right" orientation="right" stroke="#3b82f6" />
-            <Tooltip />
-            <Legend />
-            <Bar yAxisId="left" dataKey="avg" fill="#8b5cf6" radius={[8, 8, 0, 0]} name="Average Score" />
-            <Bar yAxisId="right" dataKey="students" fill="#3b82f6" radius={[8, 8, 0, 0]} name="Students" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <CheckCircle className="text-green-500" />
-            Upcoming Classes
-          </h3>
-          <div className="space-y-3">
-            {[
-              { time: '10:00 AM - 11:00 AM', subject: 'Data Structures', room: 'Room 301', students: 45 },
-              { time: '02:00 PM - 03:00 PM', subject: 'DBMS', room: 'Room 205', students: 48 },
-              { time: '04:00 PM - 05:00 PM', subject: 'Operating Systems', room: 'Lab 102', students: 42 }
-            ].map((cls, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
-                <div>
-                  <h4 className="font-semibold text-gray-800">{cls.subject}</h4>
-                  <p className="text-sm text-gray-600">{cls.time} • {cls.room}</p>
+      {/* ── Subjects Table + Schedule/Tasks ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        {/* Subjects */}
+        <div className="lg:col-span-3 rounded-lg p-5" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+          <p className="text-sm font-semibold mb-4" style={{ color: TXT }}>Subject Performance</p>
+          <div className="space-y-2">
+            {subjects.map((s, i) => (
+              <div key={i} className="flex items-center gap-4 p-3 rounded-lg" style={{ background: "#0B0F19" }}>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium truncate" style={{ color: TXT }}>{s.name}</p>
+                  <p className="text-[10px]" style={{ color: TXT3 }}>{s.students} students</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-indigo-600">{cls.students}</p>
-                  <p className="text-xs text-gray-500">Students</p>
+                <div className="w-24">
+                  <div className="h-1.5 rounded-full" style={{ background: BORDER }}>
+                    <div className="h-1.5 rounded-full" style={{ background: ORANGE, width: `${s.avg}%` }} />
+                  </div>
                 </div>
+                <p className="text-xs font-bold w-8 text-right" style={{ color: TXT }}>{s.avg}</p>
+                <span className="text-[10px] font-semibold" style={{ color: s.trend.startsWith("+") ? "#22C55E" : "#EF4444" }}>{s.trend}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <AlertCircle className="text-orange-500" />
-            Pending Tasks
-          </h3>
-          <div className="space-y-3">
-            {[
-              { task: 'Grade DSA Mid-Term Papers', priority: 'high', due: 'Today' },
-              { task: 'Upload Study Material for OS', priority: 'medium', due: 'Tomorrow' },
-              { task: 'Prepare DBMS Quiz Questions', priority: 'low', due: '3 days' },
-              { task: 'Review Student Assignments', priority: 'medium', due: '2 days' }
-            ].map((task, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    task.priority === 'high' ? 'bg-red-500' :
-                    task.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
-                  }`} />
-                  <div>
-                    <h4 className="font-medium text-gray-800">{task.task}</h4>
-                    <p className="text-xs text-gray-500">Due: {task.due}</p>
+        {/* Schedule + Tasks */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="rounded-lg p-5" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+            <p className="text-sm font-semibold mb-3" style={{ color: TXT }}>Today's Classes</p>
+            <div className="space-y-2">
+              {upcoming.map((c, i) => (
+                <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg" style={{ background: "#0B0F19" }}>
+                  <div className="w-1 h-8 rounded-full" style={{ background: ORANGE }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate" style={{ color: TXT }}>{c.subject}</p>
+                    <p className="text-[10px]" style={{ color: TXT3 }}>{c.time} · Room {c.room}</p>
+                  </div>
+                  <span className="text-[10px] font-semibold" style={{ color: ORANGE }}>{c.students}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-lg p-5" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+            <p className="text-sm font-semibold mb-3" style={{ color: TXT }}>Tasks</p>
+            <div className="space-y-2">
+              {tasks.map((t, i) => (
+                <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg" style={{ background: "#0B0F19" }}>
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{
+                    background: t.priority === "high" ? "#EF4444" : t.priority === "medium" ? "#F59E0B" : "#22C55E",
+                  }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate" style={{ color: TXT }}>{t.task}</p>
+                    <p className="text-[10px]" style={{ color: TXT3 }}>Due: {t.due}</p>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -218,4 +205,3 @@ const FacultyDashboard = ({ profileData }) => {
 };
 
 export default FacultyDashboard;
-

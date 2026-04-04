@@ -1,228 +1,164 @@
 import React, { useEffect, useState } from "react";
-import { 
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
-} from 'recharts';
-import { 
-  Users, BookOpen, Calendar, TrendingUp, Award,
-  UserCheck, Clock, Target
-} from 'lucide-react';
+import {
+  BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from "recharts";
+import { Users, BookOpen, UserCheck, Building2, TrendingUp, Activity } from "lucide-react";
 import axiosWrapper from "../utils/AxiosWrapper";
-import { toast } from "react-hot-toast";
 
-const StatCard = ({ icon: Icon, title, value, change, color }) => (
-  <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
-    <div className="flex items-center justify-between mb-4">
-      <div className={`p-3 rounded-xl ${color}`}>
-        <Icon size={22} className="text-slate-900" />
-      </div>
-      {change && (
-        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-          change > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
-        }`}>
-          {change > 0 ? '+' : ''}{change}%
-        </span>
-      )}
-    </div>
-    <h3 className="text-2xl font-bold mb-1 text-slate-900">{value}</h3>
-    <p className="text-sm text-slate-500">{title}</p>
-  </div>
-);
+const PURPLE = "#7C3AED";
+const PURPLE_L = "#8B5CF6";
+const CARD = "#111827";
+const BORDER = "#1F2937";
+const TXT = "#F3F4F6";
+const TXT2 = "#9CA3AF";
+const TXT3 = "#6B7280";
+const tp = {
+  contentStyle: { background: "#1F2937", border: `1px solid #374151`, borderRadius: 8, color: TXT },
+};
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({
-    totalStudents: 0,
-    totalFaculty: 0,
-    totalBranches: 0,
-    totalSubjects: 0,
-    attendanceRate: 0
-  });
+  const [stats, setStats] = useState({ totalStudents: 0, totalFaculty: 0, totalBranches: 0, totalSubjects: 0 });
   const [loading, setLoading] = useState(true);
   const userToken = localStorage.getItem("userToken");
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchData = async () => {
     try {
-      const [studentsRes, facultyRes, branchesRes, subjectsRes] = await Promise.all([
-        axiosWrapper.post('/student/search', {}, { headers: { Authorization: `Bearer ${userToken}` }}),
-        axiosWrapper.post('/faculty/filter', {}, { headers: { Authorization: `Bearer ${userToken}` }}),
-        axiosWrapper.get('/branch', { headers: { Authorization: `Bearer ${userToken}` }}),
-        axiosWrapper.get('/subject', { headers: { Authorization: `Bearer ${userToken}` }})
+      const [s, f, b, sub] = await Promise.all([
+        axiosWrapper.post("/student/search", {}, { headers: { Authorization: `Bearer ${userToken}` } }),
+        axiosWrapper.post("/faculty/filter", {}, { headers: { Authorization: `Bearer ${userToken}` } }),
+        axiosWrapper.get("/branch", { headers: { Authorization: `Bearer ${userToken}` } }),
+        axiosWrapper.get("/subject", { headers: { Authorization: `Bearer ${userToken}` } }),
       ]);
-
       setStats({
-        totalStudents: studentsRes.data.data?.length || 0,
-        totalFaculty: facultyRes.data.data?.length || 0,
-        totalBranches: branchesRes.data.data?.length || 0,
-        totalSubjects: subjectsRes.data.data?.length || 0,
-        attendanceRate: 85
+        totalStudents: s.data.data?.length || 0,
+        totalFaculty: f.data.data?.length || 0,
+        totalBranches: b.data.data?.length || 0,
+        totalSubjects: sub.data.data?.length || 0,
       });
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching dashboard data", error);
-      setLoading(false);
-    }
+    } catch (e) { console.error(e); }
+    setLoading(false);
   };
 
   const attendanceData = [
-    { name: 'Mon', present: 120, absent: 10 },
-    { name: 'Tue', present: 125, absent: 5 },
-    { name: 'Wed', present: 118, absent: 12 },
-    { name: 'Thu', present: 130, absent: 2 },
-    { name: 'Fri', present: 115, absent: 15 },
+    { d: "Mon", present: 120, absent: 10 }, { d: "Tue", present: 125, absent: 5 },
+    { d: "Wed", present: 118, absent: 12 }, { d: "Thu", present: 130, absent: 2 },
+    { d: "Fri", present: 115, absent: 15 },
   ];
-
   const branchData = [
-    { name: 'CSE', value: 45, color: '#3b82f6' },
-    { name: 'ECE', value: 30, color: '#8b5cf6' },
-    { name: 'ME', value: 15, color: '#10b981' },
-    { name: 'CE', value: 5, color: '#f59e0b' },
-    { name: 'EE', value: 5, color: '#ef4444' },
+    { name: "CSE", value: 45, color: "#7C3AED" }, { name: "ECE", value: 30, color: "#A78BFA" },
+    { name: "ME", value: 15, color: "#C4B5FD" }, { name: "CE", value: 5, color: "#DDD6FE" },
+    { name: "EE", value: 5, color: "#EDE9FE" },
   ];
-
-  const performanceData = [
-    { month: 'Jan', score: 75 },
-    { month: 'Feb', score: 78 },
-    { month: 'Mar', score: 82 },
-    { month: 'Apr', score: 85 },
-    { month: 'May', score: 83 },
-    { month: 'Jun', score: 88 },
+  const perfData = [
+    { m: "Jan", v: 75 }, { m: "Feb", v: 78 }, { m: "Mar", v: 82 },
+    { m: "Apr", v: 85 }, { m: "May", v: 83 }, { m: "Jun", v: 88 },
   ];
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600"></div>
+      <div className="flex items-center justify-center h-80">
+        <div className="animate-spin rounded-full h-8 w-8" style={{ border: `2px solid ${BORDER}`, borderTop: `2px solid ${PURPLE}` }} />
       </div>
     );
   }
 
+  const metrics = [
+    { icon: Users, label: "Students", val: stats.totalStudents, delta: "+12", bg: "#7C3AED" },
+    { icon: Users, label: "Faculty", val: stats.totalFaculty, delta: "+3", bg: "#8B5CF6" },
+    { icon: BookOpen, label: "Subjects", val: stats.totalSubjects, delta: "0", bg: "#A78BFA" },
+    { icon: Building2, label: "Branches", val: stats.totalBranches, delta: "0", bg: "#6D28D9" },
+    { icon: UserCheck, label: "Attendance", val: "85%", delta: "+3.5%", bg: "#5B21B6" },
+    { icon: Activity, label: "Pass Rate", val: "95%", delta: "+1.2%", bg: "#4C1D95" },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          icon={Users}
-          title="Total Students"
-          value={stats.totalStudents}
-          change={5.2}
-          color="bg-blue-100"
-        />
-        <StatCard
-          icon={Users}
-          title="Total Faculty"
-          value={stats.totalFaculty}
-          change={2.1}
-          color="bg-violet-100"
-        />
-        <StatCard
-          icon={BookOpen}
-          title="Total Courses"
-          value={stats.totalSubjects}
-          change={0}
-          color="bg-emerald-100"
-        />
-        <StatCard
-          icon={UserCheck}
-          title="Attendance Rate"
-          value={`${stats.attendanceRate}%`}
-          change={3.5}
-          color="bg-amber-100"
-        />
+    <div className="animate-fade-in space-y-5">
+      {/* ── Metric strip ── */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {metrics.map((m, i) => (
+          <div key={i} className="rounded-lg p-4" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+            <div className="flex items-center justify-between mb-3">
+              <m.icon size={16} style={{ color: m.bg }} />
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: `${m.bg}15`, color: m.bg }}>{m.delta}</span>
+            </div>
+            <p className="text-xl font-bold" style={{ color: TXT }}>{m.val}</p>
+            <p className="text-[11px] mt-0.5" style={{ color: TXT3 }}>{m.label}</p>
+          </div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <Calendar className="text-indigo-500" />
-            Weekly Attendance Overview
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={attendanceData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="present" fill="#10b981" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="absent" fill="#ef4444" radius={[8, 8, 0, 0]} />
+      {/* ── Charts row ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Attendance Bar */}
+        <div className="lg:col-span-2 rounded-lg p-5" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-semibold" style={{ color: TXT }}>Weekly Attendance</p>
+            <span className="text-[10px] px-2 py-1 rounded-md" style={{ background: `${PURPLE}15`, color: PURPLE }}>This Week</span>
+          </div>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={attendanceData} barCategoryGap="25%">
+              <CartesianGrid strokeDasharray="3 3" stroke={BORDER} />
+              <XAxis dataKey="d" stroke={TXT3} fontSize={11} tickLine={false} />
+              <YAxis stroke={TXT3} fontSize={11} tickLine={false} />
+              <Tooltip {...tp} />
+              <Bar dataKey="present" fill={PURPLE} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="absent" fill="#EF4444" radius={[4, 4, 0, 0]} opacity={0.6} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <TrendingUp className="text-purple-500" />
-            Students by Branch
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
+        {/* Branch Pie */}
+        <div className="rounded-lg p-5" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+          <p className="text-sm font-semibold mb-4" style={{ color: TXT }}>Branch Distribution</p>
+          <ResponsiveContainer width="100%" height={220}>
             <PieChart>
-              <Pie
-                data={branchData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {branchData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
+              <Pie data={branchData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} dataKey="value" stroke={CARD} strokeWidth={3}>
+                {branchData.map((e, i) => <Cell key={i} fill={e.color} />)}
               </Pie>
-              <Tooltip />
+              <Tooltip {...tp} />
             </PieChart>
           </ResponsiveContainer>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
+            {branchData.map((b, i) => (
+              <div key={i} className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full" style={{ background: b.color }} />
+                <span className="text-[10px]" style={{ color: TXT3 }}>{b.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <Award className="text-green-500" />
-          Overall Performance Trend
-        </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={performanceData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="score" 
-              stroke="#8b5cf6" 
-              strokeWidth={3}
-              dot={{ fill: '#8b5cf6', r: 6 }}
-              activeDot={{ r: 8 }}
-            />
-          </LineChart>
+      {/* ── Performance Area ── */}
+      <div className="rounded-lg p-5" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm font-semibold" style={{ color: TXT }}>Performance Trend</p>
+          <div className="flex items-center gap-1">
+            <TrendingUp size={14} style={{ color: "#22C55E" }} />
+            <span className="text-xs font-medium" style={{ color: "#22C55E" }}>+4.2%</span>
+          </div>
+        </div>
+        <ResponsiveContainer width="100%" height={180}>
+          <AreaChart data={perfData}>
+            <defs>
+              <linearGradient id="purpleG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={PURPLE} stopOpacity={0.25} />
+                <stop offset="100%" stopColor={PURPLE} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke={BORDER} />
+            <XAxis dataKey="m" stroke={TXT3} fontSize={11} tickLine={false} />
+            <YAxis stroke={TXT3} fontSize={11} tickLine={false} />
+            <Tooltip {...tp} />
+            <Area type="monotone" dataKey="v" stroke={PURPLE} strokeWidth={2} fillOpacity={1} fill="url(#purpleG)" />
+          </AreaChart>
         </ResponsiveContainer>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <Clock className="text-blue-500 mb-3" size={32} />
-          <h4 className="text-2xl font-bold text-blue-900">{stats.totalBranches}</h4>
-          <p className="text-slate-600 font-medium">Active Branches</p>
-        </div>
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <Target className="text-purple-500 mb-3" size={32} />
-          <h4 className="text-2xl font-bold text-purple-900">95%</h4>
-          <p className="text-slate-600 font-medium">Pass Percentage</p>
-        </div>
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <Award className="text-green-500 mb-3" size={32} />
-          <h4 className="text-2xl font-bold text-green-900">12</h4>
-          <p className="text-slate-600 font-medium">Active Exams</p>
-        </div>
       </div>
     </div>
   );
 };
 
 export default AdminDashboard;
-

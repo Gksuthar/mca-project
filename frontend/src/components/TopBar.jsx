@@ -1,63 +1,88 @@
 import React from "react";
-import { Bell, Search, User } from "lucide-react";
+import { Bell, Search, User, ChevronDown } from "lucide-react";
 import { baseMediaURL } from "../baseUrl";
 
 const TopBar = ({ title, profileData, onProfileClick }) => {
-
   return (
-    <div className="bg-white/95 backdrop-blur border-b border-slate-200 px-4 md:px-6 py-4 flex items-center justify-between sticky top-0 z-40">
+    <header
+      className="sticky top-0 z-40 flex items-center justify-between px-6 py-3"
+      style={{
+        background: "rgba(11, 15, 25, 0.92)",
+        backdropFilter: "blur(12px)",
+        borderBottom: "1px solid #1F2937",
+        minHeight: 56,
+      }}
+    >
+      {/* Left: Title */}
       <div>
-        <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
+        <h1 className="text-base font-semibold" style={{ color: "#F3F4F6" }}>
           {title || "Dashboard"}
         </h1>
-        <p className="text-xs md:text-sm text-slate-500 mt-1">
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </p>
       </div>
 
-      <div className="flex items-center gap-3 md:gap-4">
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+      {/* Right: Actions */}
+      <div className="flex items-center gap-2">
+        {/* Search */}
+        <div className="relative hidden lg:block">
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2"
+            style={{ color: "#4B5563" }}
+          />
           <input
             type="text"
             placeholder="Search..."
-            className="pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-300 w-64"
+            className="pl-8 pr-3 py-2 rounded-lg text-xs outline-none w-48"
+            style={{
+              background: "#111827",
+              border: "1px solid #1F2937",
+              color: "#D1D5DB",
+            }}
           />
         </div>
 
-        <button className="relative p-2 hover:bg-slate-100 rounded-xl transition-colors border border-transparent hover:border-slate-200">
-          <Bell size={19} className="text-slate-600" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+        {/* Notification */}
+        <button
+          className="relative p-2 rounded-lg transition-colors"
+          style={{ background: "#111827", border: "1px solid #1F2937" }}
+        >
+          <Bell size={15} style={{ color: "#6B7280" }} />
+          <span
+            className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full"
+            style={{ background: "#EF4444" }}
+          />
         </button>
 
-        <button 
-          onClick={() => onProfileClick && onProfileClick()}
-          className="flex items-center gap-3 px-2 md:px-3 py-2 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition-all"
+        {/* Profile */}
+        <button
+          onClick={() => onProfileClick?.()}
+          className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg transition-colors"
+          style={{ background: "#111827", border: "1px solid #1F2937" }}
         >
           {profileData?.profile ? (
             <img
               src={`${baseMediaURL()}/${profileData.profile}`}
               alt="Profile"
-              className="w-8 h-8 rounded-lg object-cover border border-slate-200"
+              className="w-7 h-7 rounded-md object-cover"
+              style={{ border: "1px solid #1F2937" }}
             />
           ) : (
-            <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
-              <User size={16} className="text-white" />
+            <div
+              className="w-7 h-7 rounded-md flex items-center justify-center"
+              style={{ background: "#1F2937" }}
+            >
+              <User size={13} style={{ color: "#9CA3AF" }} />
             </div>
           )}
           {profileData && (
-            <div className="text-left hidden md:block">
-              <p className="text-sm font-semibold text-slate-800">
-                {profileData.firstName} {profileData.lastName}
-              </p>
-              <p className="text-xs text-slate-500">{profileData.email}</p>
-            </div>
+            <span className="text-xs font-medium hidden md:inline" style={{ color: "#D1D5DB" }}>
+              {profileData.firstName}
+            </span>
           )}
         </button>
       </div>
-    </div>
+    </header>
   );
 };
 
 export default TopBar;
-

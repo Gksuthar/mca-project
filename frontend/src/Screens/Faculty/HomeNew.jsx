@@ -16,6 +16,18 @@ import AttendanceEnhanced from "./AttendanceEnhanced";
 import Notice from "../Notice";
 import Exam from "../Exam";
 
+const pageTitles = {
+  dashboard: "Dashboard",
+  profile: "Profile",
+  timetable: "Timetable",
+  materials: "Study Materials",
+  attendance: "Attendance",
+  students: "Student Finder",
+  marks: "Marks Entry",
+  notices: "Notices",
+  exams: "Examinations",
+};
+
 const FacultyHome = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,7 +48,6 @@ const FacultyHome = () => {
         dispatch(setUserData(response.data.data));
       }
     } catch (error) {
-      console.error(error);
       if (error?.response?.status === 401) {
         toast.error("Session expired. Please login again.");
         navigate("/");
@@ -48,14 +59,10 @@ const FacultyHome = () => {
     }
   }, [dispatch, navigate, userToken]);
 
+  useEffect(() => { fetchUserDetails(); }, [fetchUserDetails]);
   useEffect(() => {
-    fetchUserDetails();
-  }, [fetchUserDetails]);
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const page = urlParams.get("page") || "dashboard";
-    setActivePage(page);
+    const p = new URLSearchParams(location.search).get("page") || "dashboard";
+    setActivePage(p);
   }, [location.search]);
 
   const handlePageChange = (page) => {
@@ -64,64 +71,39 @@ const FacultyHome = () => {
   };
 
   const renderContent = () => {
-    if (isLoading) {
-      return (
-        <div className="flex justify-center items-center h-96">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600"></div>
-        </div>
-      );
-    }
-
+    if (isLoading) return <div className="flex justify-center items-center h-60"><div className="animate-spin rounded-full h-8 w-8" style={{ border: "2px solid #1F2937", borderTop: "2px solid #E85D04" }} /></div>;
     switch (activePage) {
-      case "dashboard":
-        return <FacultyDashboard profileData={profileData} />;
-      case "profile":
-        return profileData ? <Profile profileData={profileData} /> : null;
-      case "timetable":
-        return <Timetable />;
-      case "materials":
-        return <Material />;
-      case "attendance":
-        return <AttendanceEnhanced />;
-      case "students":
-        return <StudentFinder />;
-      case "marks":
-        return <Marks />;
-      case "notices":
-        return <Notice />;
-      case "exams":
-        return <Exam />;
-      default:
-        return <FacultyDashboard profileData={profileData} />;
+      case "dashboard": return <FacultyDashboard profileData={profileData} />;
+      case "profile": return profileData ? <Profile profileData={profileData} /> : null;
+      case "timetable": return <Timetable />;
+      case "materials": return <Material />;
+      case "attendance": return <AttendanceEnhanced />;
+      case "students": return <StudentFinder />;
+      case "marks": return <Marks />;
+      case "notices": return <Notice />;
+      case "exams": return <Exam />;
+      default: return <FacultyDashboard profileData={profileData} />;
     }
   };
-
-  const isDashboardPage = activePage === "dashboard";
 
   return (
     <div className="app-page-shell">
       <Sidebar userType="faculty" activePage={activePage} onPageChange={handlePageChange} />
-      
       <div className="app-main-panel">
-        <TopBar profileData={profileData} onProfileClick={() => handlePageChange('profile')} />
-        
+        <TopBar title={pageTitles[activePage] || "Dashboard"} profileData={profileData} onProfileClick={() => handlePageChange("profile")} />
         <main className="app-main-content">
           <div className="app-main-container">
-            {isDashboardPage ? (
-              renderContent()
-            ) : (
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            {activePage === "dashboard" ? renderContent() : (
+              <div className="rounded-lg p-5" style={{ background: "#111827", border: "1px solid #1F2937" }}>
                 {renderContent()}
               </div>
             )}
           </div>
         </main>
       </div>
-      
-      <Toaster position="top-center" />
+      <Toaster position="top-center" toastOptions={{ style: { background: "#1F2937", color: "#F3F4F6", border: "1px solid #374151", fontSize: 13 } }} />
     </div>
   );
 };
 
 export default FacultyHome;
-

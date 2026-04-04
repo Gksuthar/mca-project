@@ -1,15 +1,10 @@
 import { AiOutlineLoading } from "react-icons/ai";
-
-const Loading = () => {
-  return (
-    <div className="w-full h-[40vh] flex justify-center items-center flex-col gap-3">
-      <div className="rounded-2xl border border-slate-200 bg-white px-8 py-6 shadow-sm flex flex-col items-center gap-3">
-        <AiOutlineLoading className="animate-spin text-blue-600 text-3xl" />
-        <p className="text-sm font-medium text-slate-600">Loading data...</p>
-      </div>
+const Loading = () => (
+  <div className="w-full h-[40vh] flex justify-center items-center">
+    <div className="rounded-lg px-6 py-5 flex flex-col items-center gap-2" style={{ background: "#111827", border: "1px solid #1F2937" }}>
+      <AiOutlineLoading className="animate-spin text-2xl" style={{ color: "#7C3AED" }} />
+      <p className="text-xs font-medium" style={{ color: "#9CA3AF" }}>Loading...</p>
     </div>
-  );
-};
-
+  </div>
+);
 export default Loading;
-
