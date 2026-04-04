@@ -19,6 +19,8 @@ const Exam = () => {
     examType: "mid",
     timetableLink: "",
     totalMarks: "",
+    branchId: "",
+    subjectId: "",
   });
   const [exams, setExams] = useState();
   const [showModal, setShowModal] = useState(false);
@@ -30,17 +32,56 @@ const Exam = () => {
   const loginType = localStorage.getItem("userType");
   const [processLoading, setProcessLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
+  const [branches, setBranches] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+
+  const fetchBranches = async () => {
+    try {
+      const response = await axiosWrapper.get("/branch", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` },
+      });
+      if (response.data.success) setBranches(response.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchSubjects = async (branchId) => {
+    try {
+      const response = await axiosWrapper.get(`/subject?branch=${branchId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` },
+      });
+      if (response.data.success) setSubjects(response.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     getExamsHandler();
+    if (loginType !== "Student") {
+      fetchBranches();
+    }
   }, []);
+
+  useEffect(() => {
+    if (data.branchId) {
+      fetchSubjects(data.branchId);
+    } else {
+      setSubjects([]);
+    }
+  }, [data.branchId]);
 
   const getExamsHandler = async () => {
     try {
       setDataLoading(true);
       let link = "/exam";
-      if (userData.semester) {
-        link = `/exam?semester=${userData.semester}`;
+      if (loginType === "Student" && userData.semester) {
+        let bId = userData.branchId?._id || userData.branchId || "";
+        link = `/exam?semester=${userData.semester}&branchId=${bId}`;
+      } else if (loginType === "Faculty") {
+        let bId = userData.branchId?._id || userData.branchId || "";
+        link = `/exam?branchId=${bId}`;
       }
       const response = await axiosWrapper.get(link, {
         headers: {
@@ -75,7 +116,9 @@ const Exam = () => {
       !data.date ||
       !data.semester ||
       !data.examType ||
-      !data.totalMarks
+      !data.totalMarks ||
+      !data.branchId ||
+      !data.subjectId
     ) {
       toast.dismiss();
       toast.error("Please fill all the fields");
@@ -95,6 +138,8 @@ const Exam = () => {
       formData.append("semester", data.semester);
       formData.append("examType", data.examType);
       formData.append("totalMarks", data.totalMarks);
+      formData.append("branchId", data.branchId);
+      formData.append("subjectId", data.subjectId);
       if (isEditing) {
         formData.append("file", file);
         response = await axiosWrapper.patch(
@@ -134,6 +179,8 @@ const Exam = () => {
       examType: "mid",
       timetableLink: "",
       totalMarks: "",
+      branchId: "",
+      subjectId: "",
     });
     setShowModal(false);
     setIsEditing(false);
@@ -153,6 +200,8 @@ const Exam = () => {
       examType: exam.examType,
       timetableLink: exam.timetableLink,
       totalMarks: exam.totalMarks,
+      branchId: exam.branchId?._id || exam.branchId || "",
+      subjectId: exam.subjectId?._id || exam.subjectId || "",
     });
     setSelectedExamId(exam._id);
     setIsEditing(true);
@@ -200,11 +249,16 @@ const Exam = () => {
             <thead>
               <tr className="bg-blue-500 text-white">
                 <th className="py-4 px-6 text-left font-semibold">Exam Name</th>
+                <th className="py-4 px-6 text-left font-semibold">Subject</th>
+                <th className="py-4 px-6 text-left font-semibold">Branch</th>
                 <th className="py-4 px-6 text-left font-semibold">Date</th>
                 <th className="py-4 px-6 text-left font-semibold">Semester</th>
                 <th className="py-4 px-6 text-left font-semibold">Exam Type</th>
                 <th className="py-4 px-6 text-left font-semibold">
                   Total Marks
+                </th>
+                <th className="py-4 px-6 text-left font-semibold">
+                  Timetable
                 </th>
                 {loginType !== "Student" && (
                   <th className="py-4 px-6 text-center font-semibold">
@@ -218,6 +272,8 @@ const Exam = () => {
                 exams.map((item, index) => (
                   <tr key={index} className="border-b hover:bg-blue-50">
                     <td className="py-4 px-6">{item.name}</td>
+                    <td className="py-4 px-6">{item.subjectId?.name || "N/A"}</td>
+                    <td className="py-4 px-6">{item.branchId?.name || "N/A"}</td>
                     <td className="py-4 px-6">
                       {new Date(item.date).toLocaleDateString()}
                     </td>
@@ -226,6 +282,18 @@ const Exam = () => {
                       {item.examType === "mid" ? "Mid Term" : "End Term"}
                     </td>
                     <td className="py-4 px-6">{item.totalMarks}</td>
+                    <td className="py-4 px-6">
+                      {item.timetableLink && (
+                        <a 
+                          href={`${import.meta.env.VITE_MEDIA_URL}/${item.timetableLink}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-blue-500 hover:text-blue-700 underline flex items-center gap-1"
+                        >
+                          View PDF
+                        </a>
+                      )}
+                    </td>
                     {loginType !== "Student" && (
                       <td className="py-4 px-6 text-center flex justify-center gap-4">
                         <CustomButton
@@ -285,6 +353,42 @@ const Exam = () => {
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Branch
+                  </label>
+                  <select
+                    value={data.branchId}
+                    onChange={(e) => setData({ ...data, branchId: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Select Branch</option>
+                    {branches.map((b) => (
+                      <option key={b._id} value={b._id}>{b.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Subject
+                  </label>
+                  <select
+                    value={data.subjectId}
+                    onChange={(e) => setData({ ...data, subjectId: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                    disabled={!data.branchId}
+                  >
+                    <option value="">Select Subject</option>
+                    {subjects.map((s) => (
+                      <option key={s._id} value={s._id}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

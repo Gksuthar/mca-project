@@ -1,11 +1,12 @@
 const Marks = require("../models/marks.model");
 const Student = require("../models/details/student-details.model");
+const ApiResponse = require("../utils/ApiResponse");
 
 const getMarksController = async (req, res) => {
   try {
     const { studentId, semester, examId } = req.query;
 
-    const query = { student: studentId };
+    const query = { studentId: studentId };
     if (semester) {
       query.semester = semester;
     }
@@ -17,27 +18,16 @@ const getMarksController = async (req, res) => {
     const marks = await Marks.find(query)
       .populate("branch", "name")
       .populate("marks.subject", "name")
-      .populate("student", "firstName lastName enrollmentNo");
+      .populate("studentId", "firstName lastName enrollmentNo");
 
     if (!marks || marks.length === 0) {
-      return res.status(200).json({
-        success: true,
-        data: [],
-        message: "No marks found for the specified criteria",
-      });
+      return ApiResponse.success([], "No marks found for the specified criteria").send(res);
     }
 
-    res.json({
-      success: true,
-      message: "Marks retrieved successfully",
-      data: marks,
-    });
+    return ApiResponse.success(marks, "Marks retrieved successfully").send(res);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
+    return ApiResponse.internalServerError().send(res);
   }
 };
 
@@ -46,45 +36,32 @@ const addMarksController = async (req, res) => {
     const { studentId, semester, branch, marks } = req.body;
 
     if (!studentId || !semester || !branch || !marks || !Array.isArray(marks)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid input data",
-      });
+      return ApiResponse.badRequest("Invalid input data").send(res);
     }
 
     const student = await Student.findById(studentId);
     if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: "Student not found",
-      });
+      return ApiResponse.notFound("Student not found").send(res);
     }
 
-    let existingMarks = await Marks.findOne({ student: studentId, semester });
+    let existingMarks = await Marks.findOne({ studentId: studentId, semester });
 
     if (existingMarks) {
       existingMarks.marks = marks;
       await existingMarks.save();
     } else {
       existingMarks = await Marks.create({
-        student: studentId,
+        studentId: studentId,
         semester,
         branch,
         marks,
       });
     }
 
-    res.json({
-      success: true,
-      message: "Marks updated successfully",
-      data: existingMarks,
-    });
+    return ApiResponse.success(existingMarks, "Marks updated successfully").send(res);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
+    return ApiResponse.internalServerError().send(res);
   }
 };
 
@@ -95,22 +72,13 @@ const deleteMarksController = async (req, res) => {
     const deletedMarks = await Marks.findByIdAndDelete(id);
 
     if (!deletedMarks) {
-      return res.status(404).json({
-        success: false,
-        message: "Marks not found",
-      });
+      return ApiResponse.notFound("Marks not found").send(res);
     }
 
-    res.json({
-      success: true,
-      message: "Marks deleted successfully",
-    });
+    return ApiResponse.success(null, "Marks deleted successfully").send(res);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
+    return ApiResponse.internalServerError().send(res);
   }
 };
 
@@ -119,11 +87,9 @@ const addBulkMarksController = async (req, res) => {
     const { marks, examId, subjectId, semester } = req.body;
 
     if (!marks || !Array.isArray(marks) || !examId || !subjectId || !semester) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Invalid input data. Required: marks array, examId, subjectId, and semester",
-      });
+      return ApiResponse.badRequest(
+        "Invalid input data. Required: marks array, examId, subjectId, and semester"
+      ).send(res);
     }
 
     const results = [];
@@ -151,17 +117,10 @@ const addBulkMarksController = async (req, res) => {
       }
     }
 
-    res.json({
-      success: true,
-      message: "Marks submitted successfully",
-      data: results,
-    });
+    return ApiResponse.success(results, "Marks submitted successfully").send(res);
   } catch (error) {
     console.error("Error in addBulkMarksController:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Error submitting marks",
-    });
+    return ApiResponse.internalServerError(error.message).send(res);
   }
 };
 
@@ -170,11 +129,9 @@ const getStudentsWithMarksController = async (req, res) => {
     const { branch, subject, semester, examId } = req.query;
 
     if (!branch || !subject || !semester || !examId) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Missing required parameters: branch, subject, semester, and examId are required",
-      });
+      return ApiResponse.badRequest(
+        "Missing required parameters: branch, subject, semester, and examId are required"
+      ).send(res);
     }
 
     const students = await Student.find({
@@ -183,11 +140,7 @@ const getStudentsWithMarksController = async (req, res) => {
     }).select("_id enrollmentNo firstName lastName");
 
     if (!students || students.length === 0) {
-      return res.status(200).json({
-        success: true,
-        data: [],
-        message: "No students found for the specified criteria",
-      });
+      return ApiResponse.success([], "No students found for the specified criteria").send(res);
     }
 
     const marks = await Marks.find({
@@ -207,17 +160,10 @@ const getStudentsWithMarksController = async (req, res) => {
       };
     });
 
-    res.json({
-      success: true,
-      message: "Students retrieved successfully with marks",
-      data: studentsWithMarks,
-    });
+    return ApiResponse.success(studentsWithMarks, "Students retrieved successfully with marks").send(res);
   } catch (error) {
     console.error("Error in getStudentsWithMarksController:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Error retrieving students with marks",
-    });
+    return ApiResponse.internalServerError(error.message).send(res);
   }
 };
 
@@ -227,38 +173,34 @@ const getStudentMarksController = async (req, res) => {
     const studentId = req.userId;
 
     if (!semester) {
-      return res.status(400).json({
-        success: false,
-        message: "Semester is required",
-      });
+      return ApiResponse.badRequest("Semester is required").send(res);
+    }
+
+    let studentIdToUse = studentId;
+    const studentDetail = await Student.findOne({ userId: studentId });
+    if (studentDetail) {
+      studentIdToUse = studentDetail._id;
+    } else {
+      // Fallback for older records
+      const fallback = await Student.findOne({ email: req.user?.email });
+      if (fallback) studentIdToUse = fallback._id;
     }
 
     const marks = await Marks.find({
-      studentId,
+      studentId: studentIdToUse,
       semester: Number(semester),
     })
       .populate("subjectId", "name")
       .populate("examId", "name examType totalMarks");
 
     if (!marks || marks.length === 0) {
-      return res.status(200).json({
-        success: true,
-        data: [],
-        message: "No marks found for this semester",
-      });
+      return ApiResponse.success([], "No marks found for this semester").send(res);
     }
 
-    res.json({
-      success: true,
-      message: "Marks retrieved successfully",
-      data: marks,
-    });
+    return ApiResponse.success(marks, "Marks retrieved successfully").send(res);
   } catch (error) {
     console.error("Error in getStudentMarksController:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Error retrieving marks",
-    });
+    return ApiResponse.internalServerError(error.message).send(res);
   }
 };
 

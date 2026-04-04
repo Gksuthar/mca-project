@@ -1,7 +1,17 @@
 const nodemailer = require("nodemailer");
 
-const sendResetMail = async (email, resetToken, type) => {
+const sendMail = async (email, subject, html) => {
   try {
+    if (!process.env.NODEMAILER_EMAIL || !process.env.NODEMAILER_PASS) {
+      console.log("-----------------------------------------");
+      console.log("⚠️ WARNING: Email credentials not set in .env");
+      console.log(`📧 SIMULATED EMAIL TO: ${email}`);
+      console.log(`📝 SUBJECT: ${subject}`);
+      console.log(`📄 BODY: ${html}`);
+      console.log("-----------------------------------------");
+      return; // Simulate success
+    }
+
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
@@ -11,23 +21,18 @@ const sendResetMail = async (email, resetToken, type) => {
     });
 
     const mailOptions = {
-      from: process.env.EMAIL,
+      from: process.env.NODEMAILER_EMAIL,
       to: email,
-      subject: "Password Reset Request",
-      html: `
-                <h2>Password Reset</h2>
-                <p>You requested for a password reset. Click the link below to reset your password. This link is valid for 10 minutes.</p>
-                <a href="${process.env.FRONTEND_API_LINK}/${type}/update-password/${resetToken}" target="_blank">Reset Password</a>
-                <p>If you did not request this, please ignore this email.</p>
-            `,
+      subject: subject,
+      html: html,
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Reset email sent successfully");
+    console.log("Email sent successfully to", email);
   } catch (error) {
-    console.error("Error sending reset email:", error);
-    throw new Error("Could not send reset email");
+    console.error("Error sending email:", error);
+    throw new Error("Could not send email");
   }
 };
 
-module.exports = sendResetMail;
+module.exports = sendMail;

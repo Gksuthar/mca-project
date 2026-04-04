@@ -13,18 +13,18 @@ const {
   updateLoggedInPasswordController,
 } = require("../../controllers/details/faculty-details.controller");
 const upload = require("../../middlewares/multer.middleware");
-const auth = require("../../middlewares/auth.middleware");
+const { protect } = require("../../middlewares/auth.middleware");
 
 router.post("/register", upload.single("file"), registerFacultyController);
 router.post("/login", loginFacultyController);
-router.get("/my-details", auth, getMyFacultyDetailsController);
+router.get("/my-details", protect, getMyFacultyDetailsController);
 
-router.get("/", auth, getAllFacultyController);
-router.post("/filter", auth, filterFacultyController);
-router.patch("/:id", auth, upload.single("file"), updateFacultyController);
-router.delete("/:id", auth, deleteFacultyController);
+router.get("/", protect, getAllFacultyController);
+router.post("/filter", protect, filterFacultyController);
+router.patch("/:id", protect, upload.single("file"), updateFacultyController);
+router.delete("/:id", protect, deleteFacultyController);
 router.post("/forget-password", sendFacultyResetPasswordEmail);
 router.post("/update-password/:resetId", updateFacultyPasswordHandler);
-router.post("/change-password", auth, updateLoggedInPasswordController);
+router.post("/change-password", protect, updateLoggedInPasswordController);
 
 module.exports = router;

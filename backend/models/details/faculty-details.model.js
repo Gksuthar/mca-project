@@ -2,6 +2,14 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const facultyDetailsSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    subjectsAssigned: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject",
+    }],
     employeeId: {
       type: Number,
       required: true,
@@ -95,9 +103,15 @@ const facultyDetailsSchema = new mongoose.Schema(
 
 facultyDetailsSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
-    next();
+    return next();
   }
-  this.password = await bcrypt.hash(this.password, 10);
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 const facultyDetails = mongoose.model("FacultyDetail", facultyDetailsSchema);

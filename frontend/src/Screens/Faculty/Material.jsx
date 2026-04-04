@@ -175,7 +175,13 @@ const Material = () => {
       if (editingMaterial) {
         await axiosWrapper.put(
           `/material/${editingMaterial._id}`,
-          formDataToSend
+          formDataToSend,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+            },
+          }
         );
         toast.success("Material updated successfully");
       } else {

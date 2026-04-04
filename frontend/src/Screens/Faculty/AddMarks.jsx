@@ -91,7 +91,7 @@ const AddMarks = () => {
     try {
       toast.loading("Loading exams...");
       const response = await axiosWrapper.get(
-        `/exam?semester=${selectedSemester}`,
+        `/exam?semester=${selectedSemester}&branchId=${selectedBranch?._id}&subjectId=${selectedSubject?._id}`,
         {
           headers: {
             Authorization: `Bearer ${userToken}`,

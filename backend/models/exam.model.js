@@ -9,6 +9,16 @@ const examSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  subjectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subject",
+    required: true,
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Branch",
+    required: true,
+  },
   semester: {
     type: Number,
     required: true,

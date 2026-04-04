@@ -49,45 +49,52 @@ const generateEmployeeId = () => {
 
 const registerAdminController = async (req, res, next) => {
   try {
-    const { email, phone } = req.body;
+    const { email, password, firstName, lastName, phone, designation, joiningDate } = req.body;
 
-    if (!req.file) {
-      return ApiResponse.badRequest("Profile image is required").send(res);
+    // Validate required fields
+    if (!email || !password || !firstName || !lastName || !phone || !designation) {
+      return ApiResponse.badRequest("Email, password, firstName, lastName, phone, and designation are required").send(res);
     }
-    const profile = req.file.filename;
 
+    // Validate email format
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return ApiResponse.badRequest("Invalid email format").send(res);
     }
 
+    // Validate phone format
     if (!/^\d{10}$/.test(phone)) {
       return ApiResponse.badRequest("Phone number must be 10 digits").send(res);
     }
 
+    // Validate password length
+    if (password.length < 6) {
+      return ApiResponse.badRequest("Password must be at least 6 characters long").send(res);
+    }
+
+    // Check if admin already exists
     const existingAdmin = await adminDetails.findOne({
       $or: [{ phone }, { email }],
     });
 
     if (existingAdmin) {
-      return ApiResponse.conflict(
-        "Admin with these details already exists"
-      ).send(res);
+      return ApiResponse.conflict("Admin with this email or phone already exists").send(res);
     }
 
     const employeeId = generateEmployeeId();
+    const profile = req.file ? req.file.filename : "default-profile.jpg";
 
     const user = await adminDetails.create({
       ...req.body,
       employeeId,
       profile,
-      password: "admin123",
+      password, // Will be hashed by pre-save hook
     });
 
     const sanitizedUser = await adminDetails
       .findById(user._id)
       .select("-__v -password");
 
-    return ApiResponse.created(sanitizedUser, "Admin Details Added!").send(res);
+    return ApiResponse.created(sanitizedUser, "Admin registered successfully!").send(res);
   } catch (error) {
     console.error("Add Details Error: ", error);
     if (error.name === "ValidationError") {

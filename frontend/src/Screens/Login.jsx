@@ -172,19 +172,32 @@ const Login = () => {
     }
 
     try {
+      // Call unified API auth/login endpoint with role
       const response = await axiosWrapper.post(
-        `/${selected.toLowerCase()}/login`,
-        formData,
+        "/api/auth/login",
+        {
+          email: formData.email,
+          password: formData.password,
+        },
         {
           headers: { "Content-Type": "application/json" },
         }
       );
 
-      const { token } = response.data.data;
+      const { token, user } = response.data.data;
+      
+      // Store token and user info
       localStorage.setItem("userToken", token);
-      localStorage.setItem("userType", selected);
+      localStorage.setItem("userType", user.role.charAt(0).toUpperCase() + user.role.slice(1));
+      localStorage.setItem("userId", user.id);
+      localStorage.setItem("userName", user.name);
+      
       dispatch(setUserToken(token));
-      navigate(`/${selected.toLowerCase()}`);
+      
+      // Redirect based on role from response
+      const roleBasePath = `/${user.role}`;
+      navigate(roleBasePath);
+      toast.success("Login successful!");
     } catch (error) {
       toast.dismiss();
       console.error(error);

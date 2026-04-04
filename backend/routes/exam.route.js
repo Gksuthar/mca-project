@@ -5,7 +5,7 @@ const {
   updateExamController,
   deleteExamController,
 } = require("../controllers/exam.controller");
-const auth = require("../middlewares/auth.middleware");
+const { auth } = require("../middlewares/auth.middleware");
 const router = express.Router();
 const upload = require("../middlewares/multer.middleware");
 

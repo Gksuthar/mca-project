@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { MdOutlineDelete, MdEdit } from "react-icons/md";
 import { IoMdAdd, IoMdClose } from "react-icons/io";
@@ -31,6 +31,8 @@ const Student = () => {
     firstName: "",
     middleName: "",
     lastName: "",
+    email: "",
+    password: "",
     phone: "",
     semester: "",
     branchId: "",
@@ -51,11 +53,7 @@ const Student = () => {
     },
   });
 
-  useEffect(() => {
-    getBranchHandler();
-  }, []);
-
-  const getBranchHandler = async () => {
+  const getBranchHandler = useCallback(async () => {
     try {
       toast.loading("Loading branches...");
       const response = await axiosWrapper.get(`/branch`, {
@@ -78,7 +76,11 @@ const Student = () => {
     } finally {
       toast.dismiss();
     }
-  };
+  }, [userToken]);
+
+  useEffect(() => {
+    getBranchHandler();
+  }, [getBranchHandler]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -198,9 +200,7 @@ const Student = () => {
       toast.dismiss();
       if (response.data.success) {
         if (!isEditing) {
-          toast.success(
-            `Student created successfully! Default password: student123`
-          );
+          toast.success("Student registered successfully!");
         } else {
           toast.success(response.data.message);
         }
@@ -280,6 +280,8 @@ const Student = () => {
       firstName: "",
       middleName: "",
       lastName: "",
+      email: "",
+      password: "",
       phone: "",
       semester: "",
       branchId: "",
@@ -487,7 +489,7 @@ const Student = () => {
         </div>
       )}
 
-      {branches.length == 0 && (
+      {branches.length === 0 && (
         <div className="flex justify-center items-center flex-col w-full mt-24">
           <CgDanger className="w-16 h-16 text-yellow-500 mb-4" />
           <p className="text-center text-lg">
@@ -561,6 +563,22 @@ const Student = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) =>
+                      handleFormInputChange("email", e.target.value)
+                    }
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required={!isEditing}
+                    disabled={isEditing}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Phone
                   </label>
                   <input
@@ -573,6 +591,24 @@ const Student = () => {
                     required
                   />
                 </div>
+
+                {!isEditing && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        handleFormInputChange("password", e.target.value)
+                      }
+                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required={!isEditing}
+                      placeholder="Minimum 6 characters"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { MdOutlineDelete, MdEdit } from "react-icons/md";
 import { IoMdAdd, IoMdClose } from "react-icons/io";
@@ -13,6 +13,7 @@ const Faculty = () => {
     firstName: "",
     lastName: "",
     email: "",
+    password: "",
     phone: "",
     profile: "",
     address: "",
@@ -46,12 +47,7 @@ const Faculty = () => {
   const [file, setFile] = useState(null);
   const [dataLoading, setDataLoading] = useState(null);
 
-  useEffect(() => {
-    getFacultyHandler();
-    getBranchHandler();
-  }, []);
-
-  const getBranchHandler = async () => {
+  const getBranchHandler = useCallback(async () => {
     try {
       setDataLoading(true);
       const response = await axiosWrapper.get(`/branch`, {
@@ -74,9 +70,9 @@ const Faculty = () => {
     } finally {
       setDataLoading(false);
     }
-  };
+  }, [userToken]);
 
-  const getFacultyHandler = async () => {
+  const getFacultyHandler = useCallback(async () => {
     try {
       toast.loading("Loading faculty...");
       const response = await axiosWrapper.get(`/faculty`, {
@@ -98,7 +94,12 @@ const Faculty = () => {
     } finally {
       toast.dismiss();
     }
-  };
+  }, [userToken]);
+
+  useEffect(() => {
+    getFacultyHandler();
+    getBranchHandler();
+  }, [getFacultyHandler, getBranchHandler]);
 
   const addFacultyHandler = async () => {
     try {
@@ -229,6 +230,7 @@ const Faculty = () => {
       firstName: "",
       lastName: "",
       email: "",
+      password: "",
       phone: "",
       profile: "",
       address: "",
@@ -358,6 +360,22 @@ const Faculty = () => {
                     required
                   />
                 </div>
+
+                {!isEditing && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      value={data.password}
+                      onChange={(e) => handleInputChange("password", e.target.value)}
+                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required={!isEditing}
+                      placeholder="Minimum 6 characters"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -623,9 +641,8 @@ const Faculty = () => {
 
               <div className="mt-8 flex justify-between items-center gap-4">
                 <div>
-                  <p className="text-sm">
-                    Default password will be{" "}
-                    <span className="font-bold">faculty123</span>
+                  <p className="text-sm text-gray-600">
+                    {isEditing ? "Edit faculty details" : "Set a secure password for the new faculty account"}
                   </p>
                 </div>
                 <div className="flex gap-4">

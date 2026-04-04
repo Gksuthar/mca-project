@@ -7,7 +7,7 @@ const {
   getAttendanceStats,
   deleteAttendance
 } = require("../controllers/attendance.controller");
-const auth = require("../middlewares/auth.middleware");
+const { auth } = require("../middlewares/auth.middleware");
 const upload = require("../middlewares/multer.middleware");
 const router = express.Router();
 

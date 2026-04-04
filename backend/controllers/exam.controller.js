@@ -3,14 +3,18 @@ const ApiResponse = require("../utils/ApiResponse");
 
 const getAllExamsController = async (req, res) => {
   try {
-    const { search = "", examType = "", semester = "" } = req.query;
+    const { search = "", examType = "", semester = "", branchId = "", subjectId = "" } = req.query;
 
     let query = {};
 
     if (semester) query.semester = semester;
     if (examType) query.examType = examType;
+    if (branchId) query.branchId = branchId;
+    if (subjectId) query.subjectId = subjectId;
 
-    const exams = await Exam.find(query);
+    const exams = await Exam.find(query)
+      .populate("subjectId", "name")
+      .populate("branchId", "name");
 
     return ApiResponse.success(exams, "Exams loaded!").send(res);
   } catch (error) {
