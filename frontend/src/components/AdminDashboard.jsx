@@ -32,11 +32,16 @@ const AdminDashboard = () => {
         axiosWrapper.get("/branch", { headers: { Authorization: `Bearer ${userToken}` } }),
         axiosWrapper.get("/subject", { headers: { Authorization: `Bearer ${userToken}` } }),
       ]);
+      const studentList = s.data.data?.students || s.data.data || [];
+      const facultyList = f.data.data?.faculty || f.data.data || [];
+      const branchList = b.data.data || [];
+      const subjectList = sub.data.data || [];
+
       setStats({
-        totalStudents: s.data.data?.length || 0,
-        totalFaculty: f.data.data?.length || 0,
-        totalBranches: b.data.data?.length || 0,
-        totalSubjects: sub.data.data?.length || 0,
+        totalStudents: Array.isArray(studentList) ? studentList.length : 0,
+        totalFaculty: Array.isArray(facultyList) ? facultyList.length : 0,
+        totalBranches: Array.isArray(branchList) ? branchList.length : 0,
+        totalSubjects: Array.isArray(subjectList) ? subjectList.length : 0,
       });
     } catch (e) { console.error(e); }
     setLoading(false);

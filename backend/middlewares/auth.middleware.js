@@ -16,19 +16,21 @@ const protect = async (req, res, next) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       
-      if (!decoded.id) {
-        return ApiResponse.unauthorized("Invalid token").send(res);
+      const userId = decoded.id || decoded.userId;
+      
+      if (!userId) {
+        return ApiResponse.unauthorized("Invalid token payload").send(res);
       }
 
       // Get user from database
-      const user = await User.findById(decoded.id);
+      const user = await User.findById(userId);
       
       if (!user || !user.isActive) {
         return ApiResponse.unauthorized("User not found or deactivated").send(res);
       }
 
       req.user = user;
-      req.userId = decoded.id;
+      req.userId = userId;
       req.token = token;
       next();
     } catch (jwtError) {

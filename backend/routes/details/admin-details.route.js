@@ -9,6 +9,7 @@ const {
   getMyDetailsController,
   sendForgetPasswordEmail,
   updatePasswordHandler,
+  searchAdminsController,
   updateLoggedInPasswordController,
 } = require("../../controllers/details/admin-details.controller");
 const upload = require("../../middlewares/multer.middleware");
@@ -24,5 +25,6 @@ router.delete("/:id", protect, deleteDetailsController);
 router.post("/forget-password", sendForgetPasswordEmail);
 router.post("/update-password/:resetId", updatePasswordHandler);
 router.post("/change-password", protect, updateLoggedInPasswordController);
+router.post("/search", protect, searchAdminsController);
 
 module.exports = router;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { User, Mail, Phone, Lock, ArrowRight, GraduationCap } from "lucide-react";
+import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, GraduationCap } from "lucide-react";
 import toast from "react-hot-toast";
 import axiosWrapper from "../../utils/AxiosWrapper";
 import { setUserToken } from "../../redux/actions";
@@ -18,6 +18,8 @@ const Register = () => {
     password: "",
     confirmPassword: ""
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +56,7 @@ const Register = () => {
           email: formData.email,
           password: formData.password,
           confirmPassword: formData.confirmPassword,
-          role: formData.role.toLowerCase(),
+          role: "student", // Force role to student as requested
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -88,29 +90,40 @@ const Register = () => {
     }
   }, [navigate]);
 
-  const inp = { background: "#0B0F19", border: "1px solid #1F2937", color: "#E5E7EB" };
+  const inp = { background: "rgba(11, 15, 25, 0.8)", border: "1px solid #1F2937", color: "#E5E7EB", backdropFilter: "blur(10px)" };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#0B0F19" }}>
-      <div className="fixed inset-0 pointer-events-none opacity-[0.02]" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
-      <div className="relative w-full max-w-[500px] animate-fade-in">
-        <div className="rounded-xl p-8" style={{ background: "#111827", border: "1px solid #1F2937" }}>
+    <div className="min-h-screen flex items-center justify-center px-4 relative" style={{ background: "#0B0F19" }}>
+      {/* Background Image with Overlay */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
+        style={{ 
+          backgroundImage: `url('/images/college_background_dark.png')`,
+          opacity: 0.4 
+        }}
+      />
+      <div className="absolute inset-0 z-1 bg-gradient-to-b from-[#0B0F19]/60 to-[#0B0F19]" />
+      
+      <div className="fixed inset-0 z-2 pointer-events-none opacity-[0.02]" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+      
+      <div className="relative z-10 w-full max-w-[500px] animate-fade-in">
+        <div className="rounded-[2rem] p-8 lg:p-10" style={{ background: "rgba(17, 24, 39, 0.7)", border: "1px solid rgba(255, 255, 255, 0.1)", backdropFilter: "blur(20px)", shadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)" }}>
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-lg mx-auto mb-4 flex items-center justify-center" style={{ background: "#7C3AED" }}>
+            <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)" }}>
               <GraduationCap size={28} color="#fff" />
             </div>
-            <h1 className="text-2xl font-bold" style={{ color: "#F3F4F6" }}>Create Account</h1>
-            <p className="text-sm mt-2" style={{ color: "#6B7280" }}>Join us and start your journey</p>
+            <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: "#F3F4F6" }}>Student Portal</h1>
+            <p className="text-sm mt-2 font-medium" style={{ color: "#9CA3AF" }}>Create your account to get started</p>
           </div>
           
           <form className="space-y-4" onSubmit={handleSubmit}>
             {[
-              { name: "name", icon: User, ph: "Full name", type: "text" },
-              { name: "email", icon: Mail, ph: "Email address", type: "email" },
-              { name: "phone", icon: Phone, ph: "Phone number", type: "tel" },
+              { name: "name", icon: User, ph: "Full Name", type: "text" },
+              { name: "email", icon: Mail, ph: "Email Address", type: "email" },
+              { name: "phone", icon: Phone, ph: "Phone Number", type: "tel" },
             ].map((f) => (
-              <div key={f.name} className="relative">
-                <f.icon size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#4B5563" }} />
+              <div key={f.name} className="relative group">
+                <f.icon size={16} className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors group-focus-within:text-purple-400" style={{ color: "#4B5563" }} />
                 <input
                   name={f.name}
                   type={f.type}
@@ -118,55 +131,56 @@ const Register = () => {
                   onChange={handleChange}
                   placeholder={f.ph}
                   required
-                  className="w-full py-3 pl-10 pr-4 rounded-lg text-sm outline-none transition-all focus:ring-2 focus:ring-purple-500"
+                  className="w-full py-4 pl-11 pr-4 rounded-xl text-sm outline-none transition-all focus:ring-2 focus:ring-purple-500/50"
                   style={inp}
                 />
               </div>
             ))}
 
-            <div className="relative">
-              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#4B5563" }} />
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full py-3 pl-10 pr-4 rounded-lg text-sm outline-none transition-all focus:ring-2 focus:ring-purple-500"
-                style={inp}
-              >
-                <option value="student">Student</option>
-                <option value="faculty">Faculty</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+            {/* Hidden role input or just omitted from UI but forced in handleSubmit */}
 
             {["password", "confirmPassword"].map((n) => (
-              <div key={n} className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#4B5563" }} />
+              <div key={n} className="relative group">
+                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors group-focus-within:text-purple-400" style={{ color: "#4B5563" }} />
                 <input
                   name={n}
-                  type="password"
+                  type={n === "password" ? (showPassword ? "text" : "password") : (showConfirmPassword ? "text" : "password")}
                   value={formData[n]}
                   onChange={handleChange}
-                  placeholder={n === "password" ? "Password (min 6 characters)" : "Confirm password"}
+                  placeholder={n === "password" ? "Password" : "Confirm Password"}
                   required
-                  className="w-full py-3 pl-10 pr-4 rounded-lg text-sm outline-none transition-all focus:ring-2 focus:ring-purple-500"
+                  className="w-full py-4 pl-11 pr-12 rounded-xl text-sm outline-none transition-all focus:ring-2 focus:ring-purple-500/50"
                   style={inp}
                 />
+                <button
+                  type="button"
+                  onClick={() => n === "password" ? setShowPassword(!showPassword) : setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                >
+                  {n === "password" ? (showPassword ? <EyeOff size={18} /> : <Eye size={18} />) : (showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />)}
+                </button>
               </div>
             ))}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
-              style={{ background: "#7C3AED" }}
+              className="w-full flex items-center justify-center gap-2 py-4 mt-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 shadow-xl"
+              style={{ background: "linear-gradient(to right, #7C3AED, #4F46E5)" }}
             >
-              {loading ? "Creating Account..." : <>Sign Up <ArrowRight size={16} /></>}
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Creating Account...
+                </div>
+              ) : (
+                <>Join the Academy <ArrowRight size={18} /></>
+              )}
             </button>
           </form>
 
-          <p className="text-center mt-6 text-sm" style={{ color: "#6B7280" }}>
-            Already have an account? <Link to="/login" className="font-semibold" style={{ color: "#7C3AED" }}>Sign in</Link>
+          <p className="text-center mt-8 text-sm font-medium" style={{ color: "#9CA3AF" }}>
+            Already have an account? <Link to="/login" className="text-purple-400 hover:text-purple-300 font-bold transition-colors ml-1">Sign In</Link>
           </p>
         </div>
       </div>

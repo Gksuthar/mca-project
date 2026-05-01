@@ -2,20 +2,13 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminLayout from "./layouts/AdminLayout";
-import FacultyLayout from "./layouts/FacultyLayout";
-import StudentLayout from "./layouts/StudentLayout";
 import Login from "./Screens/Auth/Login";
 import Register from "./Screens/Auth/Register";
 import ForgotPassword from "./Screens/Auth/ForgotPassword";
 import ResetPassword from "./Screens/Auth/ResetPassword";
-import Dashboard from "./Screens/Dashboard";
-import Student from "./Screens/Admin/Student";
-import Faculty from "./Screens/Admin/Faculty";
-import Subject from "./Screens/Admin/Subject";
-import Branch from "./Screens/Admin/Branch";
-import Profile from "./Screens/Profile";
-import UploadMarks from "./Screens/Faculty/UploadMarks";
+import AdminHome from "./Screens/Admin/HomeNew";
+import FacultyHome from "./Screens/Faculty/HomeNew";
+import StudentHome from "./Screens/Student/HomeNew";
 
 const App = () => {
   return (
@@ -26,99 +19,30 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/:type/update-password/:resetId" element={<ResetPassword />} />
 
-        {/* Admin Routes */}
+        {/* Role-based Home Routes */}
         <Route
           path="/admin"
           element={
             <ProtectedRoute>
-              <AdminLayout>
-                <Dashboard />
-              </AdminLayout>
+              <AdminHome />
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/admin/student"
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <Student />
-              </AdminLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/faculty"
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <Faculty />
-              </AdminLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/subject"
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <Subject />
-              </AdminLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/branch"
-          element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <Branch />
-              </AdminLayout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Faculty Routes */}
         <Route
           path="/faculty"
           element={
             <ProtectedRoute>
-              <FacultyLayout>
-                <Dashboard />
-              </FacultyLayout>
+              <FacultyHome />
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/faculty/upload-marks"
-          element={
-            <ProtectedRoute>
-              <FacultyLayout>
-                <UploadMarks />
-              </FacultyLayout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Student Routes */}
         <Route
           path="/student"
           element={
             <ProtectedRoute>
-              <StudentLayout>
-                <Dashboard />
-              </StudentLayout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Common Routes */}
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
+              <StudentHome />
             </ProtectedRoute>
           }
         />

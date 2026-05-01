@@ -188,6 +188,7 @@ const getAttendanceStats = async (req, res) => {
 
     const studentStats = {};
     attendance.forEach(record => {
+      if (!record.studentId) return;
       const sid = record.studentId._id.toString();
       if (!studentStats[sid]) {
         studentStats[sid] = {

@@ -4,6 +4,17 @@ const axiosWrapper = axios.create({
   baseURL: baseApiURL(),
 });
 
+axiosWrapper.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("userToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 axiosWrapper.interceptors.response.use(
   (response) => response,
   (error) => {

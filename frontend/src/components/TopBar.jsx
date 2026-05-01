@@ -65,6 +65,9 @@ const TopBar = ({ title, profileData, onProfileClick }) => {
               alt="Profile"
               className="w-7 h-7 rounded-md object-cover"
               style={{ border: "1px solid #1F2937" }}
+              onError={(e) => {
+                e.target.src = "https://ui-avatars.com/api/?name=" + (profileData.firstName || "User");
+              }}
             />
           ) : (
             <div

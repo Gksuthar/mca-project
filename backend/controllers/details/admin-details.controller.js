@@ -34,11 +34,64 @@ const loginAdminController = async (req, res, next) => {
 
 const getAllDetailsController = async (req, res, next) => {
   try {
-    const users = await adminDetails.find().select("-__v -password");
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    return ApiResponse.success(users, "Admin Details Retrieved").send(res);
+    const total = await adminDetails.countDocuments();
+    const users = await adminDetails
+      .find()
+      .select("-__v -password")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    return ApiResponse.success({
+      admins: users,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalAdmins: total
+    }, "Admin Details Retrieved").send(res);
   } catch (error) {
     console.error("Get Details Error: ", error);
+    return ApiResponse.internalServerError().send(res);
+  }
+};
+
+const searchAdminsController = async (req, res) => {
+  try {
+    const { name, email, page = 1, limit = 10 } = req.body;
+    let query = {};
+
+    if (name) {
+      query.$or = [
+        { firstName: { $regex: name, $options: "i" } },
+        { lastName: { $regex: name, $options: "i" } },
+      ];
+    }
+
+    if (email) {
+      query.email = { $regex: email, $options: "i" };
+    }
+
+    const skip = (page - 1) * limit;
+    const total = await adminDetails.countDocuments(query);
+
+    const admins = await adminDetails
+      .find(query)
+      .select("-password -__v")
+      .sort({ firstName: 1 })
+      .skip(skip)
+      .limit(limit);
+
+    return ApiResponse.success({
+      admins,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalAdmins: total
+    }, "Admins retrieved successfully").send(res);
+  } catch (error) {
+    console.error("Search Admins Error: ", error);
     return ApiResponse.internalServerError().send(res);
   }
 };
@@ -361,5 +414,6 @@ module.exports = {
   getMyDetailsController,
   sendForgetPasswordEmail,
   updatePasswordHandler,
+  searchAdminsController,
   updateLoggedInPasswordController,
 };

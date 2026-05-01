@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
-import { MdOutlineDelete, MdEdit } from "react-icons/md";
-import { IoMdAdd, IoMdClose } from "react-icons/io";
+import { MdOutlineDelete, MdEdit, MdRemoveRedEye } from "react-icons/md";
+import { IoMdAdd, IoMdClose, IoMdEye, IoMdEyeOff } from "react-icons/io";
 import Heading from "../../components/Heading";
 import DeleteConfirm from "../../components/DeleteConfirm";
 import axiosWrapper from "../../utils/AxiosWrapper";
 import CustomButton from "../../components/CustomButton";
 import NoData from "../../components/NoData";
 import { CgDanger } from "react-icons/cg";
+import { baseMediaURL } from "../../baseUrl";
 
 const Student = () => {
   const [searchParams, setSearchParams] = useState({
@@ -17,6 +18,8 @@ const Student = () => {
     branch: "",
   });
   const [students, setStudents] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [branches, setBranches] = useState([]);
   const [dataLoading, setDataLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -25,6 +28,8 @@ const Student = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [file, setFile] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [viewData, setViewData] = useState(null);
   const userToken = localStorage.getItem("userToken");
 
   const [formData, setFormData] = useState({
@@ -80,7 +85,28 @@ const Student = () => {
 
   useEffect(() => {
     getBranchHandler();
+    fetchInitialStudents();
   }, [getBranchHandler]);
+
+  const fetchInitialStudents = async (page = 1) => {
+    setDataLoading(true);
+    try {
+      const response = await axiosWrapper.get(`/student?page=${page}&limit=10`, {
+        headers: { Authorization: `Bearer ${userToken}` },
+      });
+      if (response.data.success) {
+        const studentList = response.data.data?.students || response.data.data || [];
+        setStudents(Array.isArray(studentList) ? studentList : []);
+        setCurrentPage(response.data.data?.currentPage || 1);
+        setTotalPages(response.data.data?.totalPages || 1);
+        setHasSearched(true);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setDataLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -90,26 +116,15 @@ const Student = () => {
     }));
   };
 
-  const searchStudents = async (e) => {
-    e.preventDefault();
-
-    if (
-      !searchParams.enrollmentNo &&
-      !searchParams.name &&
-      !searchParams.semester &&
-      !searchParams.branch
-    ) {
-      toast.error("Please select at least one filter");
-      return;
-    }
+  const searchStudents = async (e, page = 1) => {
+    if (e) e.preventDefault();
 
     setDataLoading(true);
     setHasSearched(true);
-    toast.loading("Searching students...");
     try {
       const response = await axiosWrapper.post(
         `/student/search`,
-        searchParams,
+        { ...searchParams, page, limit: 10 },
         {
           headers: { Authorization: `Bearer ${userToken}` },
         }
@@ -117,11 +132,12 @@ const Student = () => {
 
       toast.dismiss();
       if (response.data.success) {
-        if (response.data.data.length === 0) {
-          setStudents([]);
-        } else {
-          toast.success("Students found!");
-          setStudents(response.data.data);
+        const studentList = response.data.data?.students || response.data.data || [];
+        setStudents(Array.isArray(studentList) ? studentList : []);
+        setCurrentPage(response.data.data?.currentPage || 1);
+        setTotalPages(response.data.data?.totalPages || 1);
+        if (studentList.length === 0) {
+          toast.success("No students found.");
         }
       } else {
         toast.error(response.data.message);
@@ -132,6 +148,12 @@ const Student = () => {
       toast.error(error.response?.data?.message || "Error searching students");
     } finally {
       setDataLoading(false);
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      searchStudents(null, newPage);
     }
   };
 
@@ -438,7 +460,7 @@ const Student = () => {
                       <tr key={student._id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 border-b">
                           <img
-                            src={`${import.meta.env.VITE_MEDIA_URL}/${student.profile}`}
+                            src={`${baseMediaURL()}/${student.profile}`}
                             alt={`${student.firstName}'s profile`}
                             className="w-12 h-12 object-cover rounded-full"
                             onError={(e) => {
@@ -464,6 +486,13 @@ const Student = () => {
                         <td className="px-6 py-4 border-b text-center">
                           <div className="flex justify-center gap-2">
                             <CustomButton
+                              variant="primary"
+                              className="!p-2"
+                              onClick={() => setViewData(student)}
+                            >
+                              <MdRemoveRedEye />
+                            </CustomButton>
+                            <CustomButton
                               variant="secondary"
                               className="!p-2"
                               onClick={() => editStudentHandler(student)}
@@ -484,6 +513,28 @@ const Student = () => {
                   </tbody>
                 </table>
               </div>
+              
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center mt-6 space-x-2 border-t pt-4">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 border rounded-md disabled:opacity-50 text-sm"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-gray-600 font-medium px-4">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 border rounded-md disabled:opacity-50 text-sm"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -597,16 +648,25 @@ const Student = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Password
                     </label>
-                    <input
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) =>
-                        handleFormInputChange("password", e.target.value)
-                      }
-                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required={!isEditing}
-                      placeholder="Minimum 6 characters"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={(e) =>
+                          handleFormInputChange("password", e.target.value)
+                        }
+                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required={!isEditing}
+                        placeholder="Minimum 6 characters"
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <IoMdEyeOff size={18} /> : <IoMdEye size={18} />}
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -681,6 +741,7 @@ const Student = () => {
                     onChange={(e) =>
                       handleFormInputChange("dob", e.target.value)
                     }
+                    max={new Date().toLocaleDateString('en-CA')}
                     className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
@@ -888,6 +949,74 @@ const Student = () => {
         onConfirm={confirmDelete}
         message="Are you sure you want to delete this student?"
       />
+
+      {viewData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 text-gray-900">
+           <div className="bg-white rounded-lg p-8 w-[90%] max-w-2xl relative shadow-2xl">
+            <button
+              onClick={() => setViewData(null)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <IoMdClose className="text-2xl" />
+            </button>
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">Student Details</h2>
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="flex-shrink-0">
+                <img 
+                  src={`${import.meta.env.VITE_MEDIA_URL}/${viewData.profile}`} 
+                  alt="Profile" 
+                  className="w-40 h-40 object-cover rounded-2xl border-4 border-gray-100 shadow-lg"
+                  onError={(e) => e.target.src = "https://ui-avatars.com/api/?name=" + viewData.firstName + "+" + viewData.lastName + "&background=random"}
+                />
+              </div>
+              <div className="flex-1 space-y-4">
+                <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+                  <div>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Full Name</label>
+                    <p className="text-gray-800 font-medium">{viewData.firstName} {viewData.middleName} {viewData.lastName}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Enrollment No</label>
+                    <p className="text-gray-800 font-medium">{viewData.enrollmentNo}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Email</label>
+                    <p className="text-gray-800 font-medium underline">{viewData.email}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Phone</label>
+                    <p className="text-gray-800 font-medium">{viewData.phone}</p>
+                  </div>
+                  <div>
+                     <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Academic</label>
+                     <p className="text-gray-800 font-medium">{viewData.branchId?.name} - Sem {viewData.semester}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">DOB</label>
+                    <p className="text-gray-800 font-medium">{viewData.dob ? viewData.dob.split("T")[0] : "N/A"}</p>
+                  </div>
+                </div>
+                
+                <div className="border-t border-gray-100 pt-4">
+                  <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1 block">Address</label>
+                  <p className="text-gray-700">{viewData.address}, {viewData.city}, {viewData.state} - {viewData.pincode}</p>
+                </div>
+
+                {viewData.emergencyContact && (
+                   <div className="border-t border-gray-100 pt-4 bg-gray-50 p-3 rounded-xl">
+                    <label className="text-xs font-semibold text-purple-600 uppercase tracking-wider mb-2 block">Emergency Contact</label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <p className="text-sm"><strong>Name:</strong> {viewData.emergencyContact.name}</p>
+                      <p className="text-sm"><strong>Relationship:</strong> {viewData.emergencyContact.relationship}</p>
+                      <p className="text-sm"><strong>Phone:</strong> {viewData.emergencyContact.phone}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -76,7 +76,7 @@ const AdminHome = () => {
     if (isLoading) return <div className="flex justify-center items-center h-60"><div className="animate-spin rounded-full h-8 w-8" style={{ border: "2px solid #1F2937", borderTop: "2px solid #7C3AED" }} /></div>;
     switch (activePage) {
       case "dashboard": return <AdminDashboard />;
-      case "profile": return profileData ? <Profile profileData={profileData} /> : null;
+      case "profile": return profileData ? <Profile profileData={profileData} onUpdate={fetchUserDetails} /> : null;
       case "students": return <Student />;
       case "faculty": return <Faculty />;
       case "branches": return <Branch />;
@@ -96,11 +96,7 @@ const AdminHome = () => {
         <TopBar title={pageTitles[activePage] || "Dashboard"} profileData={profileData} onProfileClick={() => handlePageChange("profile")} />
         <main className="app-main-content">
           <div className="app-main-container">
-            {activePage === "dashboard" ? renderContent() : (
-              <div className="rounded-lg p-5" style={{ background: "#111827", border: "1px solid #1F2937" }}>
-                {renderContent()}
-              </div>
-            )}
+            {renderContent()}
           </div>
         </main>
       </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { LogIn, Mail, Lock, User, GraduationCap, Users, Shield, BookOpen, Award } from "lucide-react";
+import { LogIn, Mail, Lock, User, GraduationCap, Users, Shield, BookOpen, Award, ArrowRight } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { setUserToken } from "../../redux/actions";
 import { useDispatch } from "react-redux";
 import axiosWrapper from "../../utils/AxiosWrapper";
@@ -220,67 +220,130 @@ const Login = () => {
     }
   }, [type]);
 
+  const inp = { background: "#0B0F19", border: "1px solid #1F2937", color: "#E5E7EB" };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center px-4 py-12">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden" style={{ background: "#0B0F19" }}>
+      {/* Animated background shapes */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-600 rounded-full mix-blend-screen filter blur-[120px] opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-600 rounded-full mix-blend-screen filter blur-[120px] opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-600 rounded-full mix-blend-screen filter blur-[120px] opacity-10 animate-blob animation-delay-4000"></div>
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
       </div>
 
       <div className="relative w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
-        <div className="hidden lg:block text-center lg:text-left space-y-6">
-          <div className="inline-block p-4 bg-white bg-opacity-50 backdrop-blur-lg rounded-3xl">
-            <GraduationCap size={64} className="text-indigo-600" />
+        {/* Left side - Branding */}
+        <div className="hidden lg:block text-center lg:text-left space-y-8 animate-fade-in-left">
+          <div className="inline-block p-4 bg-white bg-opacity-5 backdrop-blur-xl rounded-2xl border border-white border-opacity-10 shadow-2xl">
+            <GraduationCap size={48} className="text-purple-500" />
           </div>
-          <h1 className="text-5xl font-bold text-gray-900 leading-tight">
-            College Management
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-              System
-            </span>
-          </h1>
-          <p className="text-xl text-gray-700 leading-relaxed">
-            Empowering education through seamless management and smart technology
-          </p>
-          <div className="flex gap-4 justify-center lg:justify-start">
-            <div className="p-4 bg-white bg-opacity-70 rounded-2xl backdrop-blur">
-              <Users size={32} className="text-purple-600 mb-2" />
-              <p className="text-sm font-semibold text-gray-700">500+ Students</p>
-            </div>
-            <div className="p-4 bg-white bg-opacity-70 rounded-2xl backdrop-blur">
-              <BookOpen size={32} className="text-indigo-600 mb-2" />
-              <p className="text-sm font-semibold text-gray-700">50+ Courses</p>
-            </div>
-            <div className="p-4 bg-white bg-opacity-70 rounded-2xl backdrop-blur">
-              <Award size={32} className="text-pink-600 mb-2" />
-              <p className="text-sm font-semibold text-gray-700">95% Success</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10 backdrop-blur-lg bg-opacity-95">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome Back!
-            </h2>
-            <p className="text-gray-600">
-              Select your role and sign in to continue
+          <div className="space-y-4">
+            <h1 className="text-6xl font-bold text-white leading-tight tracking-tight">
+              Academic
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">
+                Management
+              </span>
+            </h1>
+            <p className="text-xl text-gray-400 leading-relaxed max-w-md">
+              A comprehensive platform for faculty, students, and administrators to seamlessly manage academic workflows.
             </p>
           </div>
+          
+          <div className="flex gap-6 justify-center lg:justify-start">
+            <div className="group p-5 bg-white bg-opacity-5 rounded-2xl border border-white border-opacity-10 backdrop-blur-md transition-all hover:bg-opacity-10 hover:border-opacity-20">
+              <Users size={28} className="text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
+              <p className="text-sm font-bold text-white">500+ Students</p>
+              <p className="text-xs text-gray-500">Active learners</p>
+            </div>
+            <div className="group p-5 bg-white bg-opacity-5 rounded-2xl border border-white border-opacity-10 backdrop-blur-md transition-all hover:bg-opacity-10 hover:border-opacity-20">
+              <BookOpen size={28} className="text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
+              <p className="text-sm font-bold text-white">50+ Subjects</p>
+              <p className="text-xs text-gray-500">Core courses</p>
+            </div>
+          </div>
+        </div>
 
-          <UserTypeSelector
-            selected={selected}
-            onSelect={handleUserTypeSelect}
-          />
+        {/* Right side - Login Form */}
+        <div className="relative animate-fade-in-up">
+          <div className="bg-white bg-opacity-5 rounded-[2rem] border border-white border-opacity-10 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-8 lg:p-12 overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-10">
+              <Shield size={120} className="text-white" />
+            </div>
+            
+            <div className="relative">
+              <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold text-white mb-3">Welcome Back</h2>
+                <p className="text-gray-400 text-sm">Select your role and enter your credentials</p>
+              </div>
 
-          <LoginForm
-            selected={selected}
-            onSubmit={handleSubmit}
-            formData={formData}
-            setFormData={setFormData}
-          />
+              <UserTypeSelector
+                selected={selected}
+                onSelect={handleUserTypeSelect}
+              />
+
+              <div className="mt-8 transition-all duration-300">
+                <form className="w-full space-y-6" onSubmit={handleSubmit}>
+                  <div className="space-y-2">
+                    <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider ml-1" htmlFor="email">
+                      {selected} Email
+                    </label>
+                    <div className="relative group">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-purple-400 transition-colors" size={18} />
+                      <input
+                        type="email" id="email" required
+                        placeholder="name@college.com"
+                        className="w-full pl-12 pr-4 py-3.5 text-sm rounded-xl outline-none transition-all focus:ring-2 focus:ring-purple-500"
+                        style={inp}
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center px-1">
+                      <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider" htmlFor="password">
+                        Password
+                      </label>
+                      <Link className="text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors" to="/forgot-password">
+                        Forgot?
+                      </Link>
+                    </div>
+                    <div className="relative group">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-purple-400 transition-colors" size={18} />
+                      <input
+                        type="password" id="password" required
+                        placeholder="••••••••"
+                        className="w-full pl-12 pr-4 py-3.5 text-sm rounded-xl outline-none transition-all focus:ring-2 focus:ring-purple-500"
+                        style={inp}
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full mt-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-4 rounded-xl hover:shadow-[0_10px_20px_rgba(124,58,237,0.3)] transition-all active:scale-[0.98] flex justify-center items-center gap-2 group"
+                  >
+                    <span>Sign In to Portal</span>
+                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  </button>
+
+                  <div className="text-center mt-8">
+                    <p className="text-sm text-gray-400">
+                      New to the platform? <Link to="/register" className="font-bold text-purple-400 hover:text-purple-300 transition-colors">Create Account</Link>
+                    </p>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <Toaster position="top-center" />
 
       <style>{`
         @keyframes blob {
@@ -289,22 +352,21 @@ const Login = () => {
           66% { transform: translate(-20px, 20px) scale(0.9); }
           100% { transform: translate(0px, 0px) scale(1); }
         }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
+        .animate-blob { animation: blob 7s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+        
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        
+        @keyframes fadeInLeft {
+          from { opacity: 0; transform: translateX(-20px); }
+          to { opacity: 1; transform: translateX(0); }
         }
+        .animate-fade-in-left { animation: fadeInLeft 0.6s ease-out forwards; }
       `}</style>
     </div>
   );

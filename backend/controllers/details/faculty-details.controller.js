@@ -32,8 +32,25 @@ const loginFacultyController = async (req, res) => {
 
 const getAllFacultyController = async (req, res) => {
   try {
-    const users = await facultyDetails.find().select("-__v -password");
-    return ApiResponse.success(users, "Faculty Details Retrieved").send(res);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const total = await facultyDetails.countDocuments();
+    const users = await facultyDetails
+      .find()
+      .select("-__v -password")
+      .populate("branchId")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    return ApiResponse.success({
+      faculty: users,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalFaculty: total
+    }, "Faculty Details Retrieved").send(res);
   } catch (error) {
     console.error("Get All Faculty Error: ", error);
     return ApiResponse.internalServerError().send(res);
@@ -42,7 +59,7 @@ const getAllFacultyController = async (req, res) => {
 
 const filterFacultyController = async (req, res) => {
   try {
-    const { name, email, branchId } = req.body;
+    const { name, email, branchId, page = 1, limit = 10 } = req.body;
     let query = {};
 
     if (name) {
@@ -55,14 +72,23 @@ const filterFacultyController = async (req, res) => {
     if (email) query.email = { $regex: email, $options: "i" };
     if (branchId) query.branchId = branchId;
 
+    const skip = (page - 1) * limit;
+    const total = await facultyDetails.countDocuments(query);
+
     const faculty = await facultyDetails
       .find(query)
       .select("-password -__v")
-      .populate("branchId");
+      .populate("branchId")
+      .sort({ firstName: 1 })
+      .skip(skip)
+      .limit(limit);
 
-    return ApiResponse.success(faculty, "Faculty filtered successfully").send(
-      res
-    );
+    return ApiResponse.success({
+      faculty,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalFaculty: total
+    }, "Faculty filtered successfully").send(res);
   } catch (error) {
     console.error("Filter Faculty Error: ", error);
     return ApiResponse.internalServerError().send(res);

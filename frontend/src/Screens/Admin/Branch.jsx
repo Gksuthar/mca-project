@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { MdOutlineDelete, MdEdit } from "react-icons/md";
+import { MdOutlineDelete, MdEdit, MdRemoveRedEye } from "react-icons/md";
 import { IoMdAdd, IoMdClose } from "react-icons/io";
 import axiosWrapper from "../../utils/AxiosWrapper";
 import Heading from "../../components/Heading";
@@ -20,6 +20,7 @@ const Branch = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
   const [processLoading, setProcessLoading] = useState(false);
+  const [viewData, setViewData] = useState(null);
 
   useEffect(() => {
     getBranchHandler();
@@ -251,6 +252,13 @@ const Branch = () => {
                     </td>
                     <td className="py-4 px-6 text-center flex justify-center gap-4">
                       <CustomButton
+                        variant="primary"
+                        className="!p-2"
+                        onClick={() => setViewData(item)}
+                      >
+                        <MdRemoveRedEye />
+                      </CustomButton>
+                      <CustomButton
                         variant="secondary"
                         className="!p-2"
                         onClick={() => editBranchHandler(item)}
@@ -284,6 +292,25 @@ const Branch = () => {
         onConfirm={confirmDelete}
         message="Are you sure you want to delete this branch?"
       />
+
+      {viewData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 w-[90%] max-w-lg relative">
+            <button
+              onClick={() => setViewData(null)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <IoMdClose className="text-2xl" />
+            </button>
+            <h2 className="text-2xl font-semibold mb-6">Branch Details</h2>
+            <div className="space-y-4 text-lg">
+              <p><strong>Name:</strong> {viewData.name}</p>
+              <p><strong>Branch ID:</strong> {viewData.branchId}</p>
+              <p><strong>Created At:</strong> {new Date(viewData.createdAt).toLocaleDateString()}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

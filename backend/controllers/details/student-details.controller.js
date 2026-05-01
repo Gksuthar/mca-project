@@ -34,12 +34,25 @@ const loginStudentController = async (req, res) => {
 
 const getAllDetailsController = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const total = await studentDetails.countDocuments();
     const users = await studentDetails
       .find()
       .select("-__v -password")
-      .populate("branchId");
+      .populate("branchId")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
 
-    return ApiResponse.success(users, "Student Details Retrieved").send(res);
+    return ApiResponse.success({
+      students: users,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalStudents: total
+    }, "Student Details Retrieved").send(res);
   } catch (error) {
     console.error("Get Details Error: ", error);
     return ApiResponse.internalServerError().send(res);
@@ -334,7 +347,7 @@ const updatePasswordHandler = async (req, res) => {
 
 const searchStudentsController = async (req, res) => {
   try {
-    const { enrollmentNo, name, semester, branch } = req.body;
+    const { enrollmentNo, name, semester, branch, page = 1, limit = 10 } = req.body;
     let query = {};
 
     if (enrollmentNo) {
@@ -357,15 +370,23 @@ const searchStudentsController = async (req, res) => {
       query.branchId = branch;
     }
 
+    const skip = (page - 1) * limit;
+    const total = await studentDetails.countDocuments(query);
+
     const students = await studentDetails
       .find(query)
       .select("-password -__v")
       .populate("branchId")
-      .sort({ enrollmentNo: 1 });
+      .sort({ enrollmentNo: 1 })
+      .skip(skip)
+      .limit(limit);
 
-    return ApiResponse.success(students, "Students retrieved successfully").send(
-      res
-    );
+    return ApiResponse.success({
+      students,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalStudents: total
+    }, "Students retrieved successfully").send(res);
   } catch (error) {
     console.error("Search Students Error: ", error);
     return ApiResponse.internalServerError().send(res);
