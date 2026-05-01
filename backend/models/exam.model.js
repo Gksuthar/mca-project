@@ -13,6 +13,10 @@ const examSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  branch: {
+    type: String,
+    required: true,
+  },
   examType: {
     type: String,
     required: true,

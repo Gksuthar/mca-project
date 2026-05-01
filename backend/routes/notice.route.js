@@ -5,7 +5,7 @@ const {
   updateNoticeController,
   deleteNoticeController,
 } = require("../controllers/notice.controller");
-const auth = require("../middlewares/auth.middleware");
+const { auth } = require("../middlewares/auth.middleware");
 const router = express.Router();
 
 router.get("/", auth, getNoticeController);

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { LogIn, Mail, Lock, User, GraduationCap, Users, Shield, BookOpen, Award } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
-import { setUserToken } from "../redux/actions";
+import toast from "react-hot-toast";
+import { setUserToken } from "../../redux/actions";
 import { useDispatch } from "react-redux";
-import axiosWrapper from "../utils/AxiosWrapper";
+import axiosWrapper from "../../utils/AxiosWrapper";
 
 const USER_TYPES = {
   STUDENT: "Student",
@@ -156,6 +156,7 @@ const Login = () => {
   });
 
   const [selected, setSelected] = useState(USER_TYPES.STUDENT);
+  const [loading, setLoading] = useState(false);
 
   const handleUserTypeSelect = (type) => {
     const userType = type.toLowerCase();
@@ -165,14 +166,15 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     if (!formData.email || !formData.password) {
       toast.error("Please fill in all fields");
+      setLoading(false);
       return;
     }
 
     try {
-      // Call unified API auth/login endpoint with role
       const response = await axiosWrapper.post(
         "/auth/login",
         {
@@ -186,7 +188,6 @@ const Login = () => {
 
       const { token, user } = response.data.data;
       
-      // Store token and user info
       localStorage.setItem("userToken", token);
       localStorage.setItem("userType", user.role.charAt(0).toUpperCase() + user.role.slice(1));
       localStorage.setItem("userId", user.id);
@@ -194,21 +195,21 @@ const Login = () => {
       
       dispatch(setUserToken(token));
       
-      // Redirect based on role from response
-      const roleBasePath = `/${user.role}`;
-      navigate(roleBasePath);
       toast.success("Login successful!");
+      navigate(`/${user.role}`);
     } catch (error) {
-      toast.dismiss();
       console.error(error);
       toast.error(error.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     const userToken = localStorage.getItem("userToken");
     if (userToken) {
-      navigate(`/${localStorage.getItem("userType").toLowerCase()}`);
+      const userType = localStorage.getItem("userType");
+      navigate(`/${userType.toLowerCase()}`);
     }
   }, [navigate]);
 
@@ -221,7 +222,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center px-4 py-12">
-      {/* Animated background shapes */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
@@ -229,7 +229,6 @@ const Login = () => {
       </div>
 
       <div className="relative w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
-        {/* Left side - Branding */}
         <div className="hidden lg:block text-center lg:text-left space-y-6">
           <div className="inline-block p-4 bg-white bg-opacity-50 backdrop-blur-lg rounded-3xl">
             <GraduationCap size={64} className="text-indigo-600" />
@@ -259,7 +258,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Right side - Login Form */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10 backdrop-blur-lg bg-opacity-95">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -283,8 +281,6 @@ const Login = () => {
           />
         </div>
       </div>
-
-      <Toaster position="top-center" />
 
       <style>{`
         @keyframes blob {
@@ -315,4 +311,3 @@ const Login = () => {
 };
 
 export default Login;
-

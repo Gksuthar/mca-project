@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 const upload = require("../middlewares/multer.middleware");
-const auth = require("../middlewares/auth.middleware");
+const { auth } = require("../middlewares/auth.middleware");
 const {
   getTimetableController,
   addTimetableController,

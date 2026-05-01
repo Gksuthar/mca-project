@@ -16,11 +16,13 @@ const Exam = () => {
     name: "",
     date: "",
     semester: "",
+    branch: "",
     examType: "mid",
     timetableLink: "",
     totalMarks: "",
   });
   const [exams, setExams] = useState();
+  const [branches, setBranches] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [selectedExamId, setSelectedExamId] = useState(null);
@@ -33,7 +35,21 @@ const Exam = () => {
 
   useEffect(() => {
     getExamsHandler();
+    getBranches();
   }, []);
+
+  const getBranches = async () => {
+    try {
+      const response = await axiosWrapper.get(`/branch`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` }
+      });
+      if (response.data.success) {
+        setBranches(response.data.data);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error fetching branches");
+    }
+  };
 
   const getExamsHandler = async () => {
     try {
@@ -74,6 +90,7 @@ const Exam = () => {
       !data.name ||
       !data.date ||
       !data.semester ||
+      !data.branch ||
       !data.examType ||
       !data.totalMarks
     ) {
@@ -93,10 +110,11 @@ const Exam = () => {
       formData.append("name", data.name);
       formData.append("date", data.date);
       formData.append("semester", data.semester);
+      formData.append("branch", data.branch);
       formData.append("examType", data.examType);
       formData.append("totalMarks", data.totalMarks);
       if (isEditing) {
-        formData.append("file", file);
+        if (file) formData.append("file", file);
         response = await axiosWrapper.patch(
           `/exam/${selectedExamId}`,
           formData,
@@ -131,6 +149,7 @@ const Exam = () => {
       name: "",
       date: "",
       semester: "",
+      branch: "",
       examType: "mid",
       timetableLink: "",
       totalMarks: "",
@@ -150,6 +169,7 @@ const Exam = () => {
       name: exam.name,
       date: new Date(exam.date).toISOString().split("T")[0],
       semester: exam.semester,
+      branch: exam.branch,
       examType: exam.examType,
       timetableLink: exam.timetableLink,
       totalMarks: exam.totalMarks,
@@ -202,6 +222,7 @@ const Exam = () => {
                 <th className="py-4 px-6 text-left font-semibold">Exam Name</th>
                 <th className="py-4 px-6 text-left font-semibold">Date</th>
                 <th className="py-4 px-6 text-left font-semibold">Semester</th>
+                <th className="py-4 px-6 text-left font-semibold">Branch</th>
                 <th className="py-4 px-6 text-left font-semibold">Exam Type</th>
                 <th className="py-4 px-6 text-left font-semibold">
                   Total Marks
@@ -222,6 +243,9 @@ const Exam = () => {
                       {new Date(item.date).toLocaleDateString()}
                     </td>
                     <td className="py-4 px-6">{item.semester}</td>
+                    <td className="py-4 px-6">
+                      {branches.find(b => b._id === item.branch)?.name || item.branch}
+                    </td>
                     <td className="py-4 px-6">
                       {item.examType === "mid" ? "Mid Term" : "End Term"}
                     </td>
@@ -323,6 +347,27 @@ const Exam = () => {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Branch
+                  </label>
+                  <select
+                    name="branch"
+                    value={data.branch}
+                    onChange={(e) =>
+                      setData({ ...data, branch: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Select Branch</option>
+                    {branches.map((branch) => (
+                      <option key={branch._id} value={branch._id}>
+                        {branch.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Exam Type

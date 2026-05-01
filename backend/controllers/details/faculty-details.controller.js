@@ -75,45 +75,63 @@ const generateEmployeeId = () => {
 
 const registerFacultyController = async (req, res) => {
   try {
-    const { email, phone } = req.body;
-    if (!req.file) {
-      return ApiResponse.badRequest("Profile image is required").send(res);
-    }
-    const profile = req.file.filename;
+    const { email, password, firstName, lastName, phone, branchId, designation, joiningDate } = req.body;
 
+    // Validate required fields
+    if (!email || !password || !firstName || !lastName || !phone || !branchId || !designation) {
+      return ApiResponse.badRequest("Email, password, firstName, lastName, phone, branchId, and designation are required").send(res);
+    }
+
+    // Validate email format
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return ApiResponse.badRequest("Invalid email format").send(res);
     }
 
+    // Validate phone format
     if (!/^\d{10}$/.test(phone)) {
       return ApiResponse.badRequest("Phone number must be 10 digits").send(res);
     }
 
+    // Validate password length
+    if (password.length < 6) {
+      return ApiResponse.badRequest("Password must be at least 6 characters long").send(res);
+    }
+
+    // Check if faculty already exists
     const existing = await facultyDetails.findOne({
       $or: [{ phone }, { email }],
     });
+    
     if (existing) {
-      return ApiResponse.conflict(
-        "Faculty with these details already exists"
-      ).send(res);
+      return ApiResponse.conflict("Faculty with this email or phone already exists").send(res);
     }
 
     const employeeId = generateEmployeeId();
+    const profile = req.file ? req.file.filename : "default-profile.jpg";
+
+    // Create unified auth User first
+    const User = require("../../models/user.model");
+    const authUser = await User.create({
+      name: `${firstName} ${lastName}`,
+      email,
+      password,
+      role: "faculty",
+      isVerified: true,
+    });
 
     const user = await facultyDetails.create({
       ...req.body,
+      userId: authUser._id,
       employeeId,
       profile,
-      password: "faculty123",
+      password, // Will be hashed by pre-save hook
     });
 
     const sanitizedUser = await facultyDetails
       .findById(user._id)
       .select("-__v -password");
-    return ApiResponse.created(
-      sanitizedUser,
-      "Faculty Registered Successfully!"
-    ).send(res);
+
+    return ApiResponse.created(sanitizedUser, "Faculty registered successfully!").send(res);
   } catch (error) {
     console.error("Register Error: ", error);
     if (error.name === "ValidationError") {
@@ -216,7 +234,7 @@ const deleteFacultyController = async (req, res) => {
 const getMyFacultyDetailsController = async (req, res) => {
   try {
     const user = await facultyDetails
-      .findById(req.userId)
+      .findOne({ userId: req.userId })
       .select("-__v -password");
     if (!user) {
       return ApiResponse.notFound("User not found").send(res);

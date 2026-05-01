@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { MdOutlineDelete, MdEdit } from "react-icons/md";
 import { IoMdAdd, IoMdClose } from "react-icons/io";
@@ -12,6 +12,7 @@ const Admin = () => {
     firstName: "",
     lastName: "",
     email: "",
+    password: "",
     phone: "",
     profile: "",
     address: "",
@@ -41,11 +42,7 @@ const Admin = () => {
   const [file, setFile] = useState(null);
   const [dataLoading, setDataLoading] = useState(false);
 
-  useEffect(() => {
-    getAdminsHandler();
-  }, []);
-
-  const getAdminsHandler = async () => {
+  const getAdminsHandler = useCallback(async () => {
     try {
       setDataLoading(true);
       const response = await axiosWrapper.get(`/admin`, {
@@ -68,7 +65,11 @@ const Admin = () => {
     } finally {
       setDataLoading(false);
     }
-  };
+  }, [userToken]);
+
+  useEffect(() => {
+    getAdminsHandler();
+  }, [getAdminsHandler]);
 
   const addAdminHandler = async () => {
     try {
@@ -195,6 +196,7 @@ const Admin = () => {
       firstName: "",
       lastName: "",
       email: "",
+      password: "",
       phone: "",
       profile: "",
       address: "",
@@ -334,6 +336,24 @@ const Admin = () => {
                     required
                   />
                 </div>
+
+                {!isEditing && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      value={data.password}
+                      onChange={(e) =>
+                        handleInputChange("password", e.target.value)
+                      }
+                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required={!isEditing}
+                      placeholder="Minimum 6 characters"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

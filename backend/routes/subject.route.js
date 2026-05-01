@@ -6,7 +6,7 @@ const {
   updateSubjectController,
 } = require("../controllers/subject.controller");
 const router = express.Router();
-const auth = require("../middlewares/auth.middleware");
+const { auth } = require("../middlewares/auth.middleware");
 router.get("/", auth, getSubjectController);
 router.post("/", auth, addSubjectController);
 router.delete("/:id", auth, deleteSubjectController);

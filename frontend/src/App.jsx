@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
@@ -122,6 +122,10 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
+        {/* Default Routes */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );

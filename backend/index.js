@@ -1,55 +1,27 @@
 const connectToMongo = require("./database/db");
 const express = require("express");
-const app = express();
+const app = require("./app");
 const path = require("path");
-const autoSeed = require("./auto-seeder");
-require("dotenv").config();
+// const autoSeed = require("./auto-seeder");
 
 connectToMongo().then(() => {
-  autoSeed();
+  // autoSeed();
 });
+
 const port = process.env.PORT || 4000;
-var cors = require("cors");
 
-const allowedOrigins = [
-  ...(process.env.FRONTEND_API_LINK || "")
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean),
-  "http://localhost:3000",
-  "http://127.0.0.1:3000",
-];
-
-const localhostPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (
-        !origin ||
-        allowedOrigins.includes(origin) ||
-        localhostPattern.test(origin)
-      ) {
-        return callback(null, true);
-      }
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-  })
-);
-
-app.use(express.json()); //to convert request data to json
-
-app.get("/", (req, res) => {
-  res.send("Hello 👋 I am Working Fine 🚀");
-});
-
+// Static media folder
 app.use("/media", express.static(path.join(__dirname, "media")));
 
+// Auth Routes (New Unified)
+app.use("/api/auth", require("./routes/auth.route"));
+
+// User-specific routes (for backward compatibility, but will use new auth)
 app.use("/api/admin", require("./routes/details/admin-details.route"));
 app.use("/api/faculty", require("./routes/details/faculty-details.route"));
 app.use("/api/student", require("./routes/details/student-details.route"));
 
+// Resource Routes
 app.use("/api/branch", require("./routes/branch.route"));
 app.use("/api/subject", require("./routes/subject.route"));
 app.use("/api/notice", require("./routes/notice.route"));

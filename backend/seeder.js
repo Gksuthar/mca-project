@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const connectToMongo = require("./database/db");
+const User = require("./models/user.model");
 const Admin = require("./models/details/admin-details.model");
 const Faculty = require("./models/details/faculty-details.model");
 const Student = require("./models/details/student-details.model");
@@ -21,6 +22,7 @@ const seedDatabase = async () => {
     }
 
     await Branch.deleteMany({});
+    await User.deleteMany({});
     await Admin.deleteMany({});
     await Faculty.deleteMany({});
     await Student.deleteMany({});
@@ -48,7 +50,51 @@ const seedDatabase = async () => {
     ]);
     console.log(`✅ Created ${subjects.length} subjects`);
 
+    // Create User records for authentication
+    const adminUser = await User.create({
+      name: "Admin User",
+      email: "admin@college.com",
+      password: "admin123",
+      role: "admin",
+    });
+    console.log("✅ Created admin user account");
+
+    const facultyUsers = await User.insertMany([
+      {
+        name: "Rajesh Kumar",
+        email: "rajesh@college.com",
+        password: "faculty123",
+        role: "faculty",
+      },
+      {
+        name: "Priya Sharma",
+        email: "priya@college.com",
+        password: "faculty123",
+        role: "faculty",
+      },
+      {
+        name: "Vikram Singh",
+        email: "vikram@college.com",
+        password: "faculty123",
+        role: "faculty",
+      }
+    ]);
+    console.log(`✅ Created ${facultyUsers.length} faculty user accounts`);
+
+    const studentUsers = await User.insertMany([
+      { name: "Rahul Kumar Verma", email: "rahul@student.com", password: "student123", role: "student" },
+      { name: "Sneha R Patel", email: "sneha@student.com", password: "student123", role: "student" },
+      { name: "Amit Singh Chauhan", email: "amit@student.com", password: "student123", role: "student" },
+      { name: "Ananya K Reddy", email: "ananya@student.com", password: "student123", role: "student" },
+      { name: "Karan M Mehta", email: "karan@student.com", password: "student123", role: "student" },
+      { name: "Divya V Iyer", email: "divya@student.com", password: "student123", role: "student" },
+      { name: "Arjun Kumar Nair", email: "arjun@student.com", password: "student123", role: "student" },
+      { name: "Kavya P Joshi", email: "kavya@student.com", password: "student123", role: "student" }
+    ]);
+    console.log(`✅ Created ${studentUsers.length} student user accounts`);
+
     const admin = await Admin.create({
+      userId: adminUser._id,
       employeeId: 100001,
       firstName: "Admin",
       middleName: "",
@@ -82,6 +128,7 @@ const seedDatabase = async () => {
 
     const faculties = await Faculty.insertMany([
       {
+        userId: facultyUsers[0]._id,
         employeeId: 200001,
         firstName: "Rajesh",
         lastName: "Kumar",
@@ -108,6 +155,7 @@ const seedDatabase = async () => {
         password: hashedFacultyPassword
       },
       {
+        userId: facultyUsers[1]._id,
         employeeId: 200002,
         firstName: "Priya",
         lastName: "Sharma",
@@ -134,6 +182,7 @@ const seedDatabase = async () => {
         password: hashedFacultyPassword
       },
       {
+        userId: facultyUsers[2]._id,
         employeeId: 200003,
         firstName: "Vikram",
         lastName: "Singh",
@@ -164,6 +213,7 @@ const seedDatabase = async () => {
 
     const students = await Student.insertMany([
       {
+        userId: studentUsers[0]._id,
         enrollmentNo: 2021001,
         firstName: "Rahul",
         middleName: "Kumar",
@@ -189,6 +239,7 @@ const seedDatabase = async () => {
         password: hashedStudentPassword
       },
       {
+        userId: studentUsers[1]._id,
         enrollmentNo: 2021002,
         firstName: "Sneha",
         middleName: "R",
@@ -214,6 +265,7 @@ const seedDatabase = async () => {
         password: hashedStudentPassword
       },
       {
+        userId: studentUsers[2]._id,
         enrollmentNo: 2021003,
         firstName: "Amit",
         middleName: "Singh",
@@ -239,6 +291,7 @@ const seedDatabase = async () => {
         password: hashedStudentPassword
       },
       {
+        userId: studentUsers[3]._id,
         enrollmentNo: 2021004,
         firstName: "Ananya",
         middleName: "K",
@@ -264,6 +317,7 @@ const seedDatabase = async () => {
         password: hashedStudentPassword
       },
       {
+        userId: studentUsers[4]._id,
         enrollmentNo: 2021005,
         firstName: "Karan",
         middleName: "M",
@@ -289,6 +343,7 @@ const seedDatabase = async () => {
         password: hashedStudentPassword
       },
       {
+        userId: studentUsers[5]._id,
         enrollmentNo: 2021006,
         firstName: "Divya",
         middleName: "V",
@@ -314,6 +369,7 @@ const seedDatabase = async () => {
         password: hashedStudentPassword
       },
       {
+        userId: studentUsers[6]._id,
         enrollmentNo: 2021007,
         firstName: "Arjun",
         middleName: "Kumar",
@@ -339,6 +395,7 @@ const seedDatabase = async () => {
         password: hashedStudentPassword
       },
       {
+        userId: studentUsers[7]._id,
         enrollmentNo: 2021008,
         firstName: "Kavya",
         middleName: "P",

@@ -48,19 +48,58 @@ const getAllDetailsController = async (req, res) => {
 
 const registerStudentController = async (req, res) => {
   try {
-    if (!req.file) {
-      return ApiResponse.badRequest("Profile image is required").send(res);
-    }
-    const profile = req.file.filename;
+    const { email, password, firstName, middleName, lastName, phone, branchId, semester } = req.body;
 
+    // Validate required fields
+    if (!email || !password || !firstName || !lastName || !phone || !branchId || !semester) {
+      return ApiResponse.badRequest("Email, password, firstName, lastName, phone, branchId, and semester are required").send(res);
+    }
+
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return ApiResponse.badRequest("Invalid email format").send(res);
+    }
+
+    // Validate phone format
+    if (!/^\d{10}$/.test(phone)) {
+      return ApiResponse.badRequest("Phone number must be 10 digits").send(res);
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return ApiResponse.badRequest("Password must be at least 6 characters long").send(res);
+    }
+
+    // Check if student already exists
+    const existingStudent = await studentDetails.findOne({
+      $or: [{ email }, { phone }],
+    });
+
+    if (existingStudent) {
+      return ApiResponse.conflict("Student with this email or phone already exists").send(res);
+    }
+
+    // Generate enrollment number
     const enrollmentNo = Math.floor(100000 + Math.random() * 900000);
-    const email = `${enrollmentNo}@gmail.com`;
+    
+    // Get profile if file uploaded, otherwise use default
+    const profile = req.file ? req.file.filename : "default-profile.jpg";
+
+    // Create unified auth User first
+    const User = require("../../models/user.model");
+    const authUser = await User.create({
+      name: `${firstName} ${lastName}`,
+      email,
+      password,
+      role: "student",
+      isVerified: true,
+    });
 
     const user = await studentDetails.create({
       ...req.body,
+      userId: authUser._id,
       profile,
-      password: "student123",
-      email,
+      password, // Will be hashed by pre-save hook
       enrollmentNo,
     });
 
@@ -68,11 +107,9 @@ const registerStudentController = async (req, res) => {
       .findById(user._id)
       .select("-__v -password");
 
-    return ApiResponse.created(sanitizedUser, "Student Details Added!").send(
-      res
-    );
+    return ApiResponse.created(sanitizedUser, "Student registered successfully!").send(res);
   } catch (error) {
-    console.error("Add Details Error: ", error);
+    console.error("Registration Error: ", error);
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map((err) => err.message);
       return ApiResponse.badRequest(messages.join(", ")).send(res);
@@ -84,7 +121,7 @@ const registerStudentController = async (req, res) => {
 const getMyDetailsController = async (req, res) => {
   try {
     const user = await studentDetails
-      .findById(req.userId)
+      .findOne({ userId: req.userId })
       .select("-password -__v")
       .populate("branchId");
 

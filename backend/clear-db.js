@@ -7,6 +7,7 @@ const Student = require("./models/details/student-details.model");
 const Branch = require("./models/branch.model");
 const Subject = require("./models/subject.model");
 const Attendance = require("./models/attendance.model");
+const User = require("./models/user.model");
 
 const clearDatabase = async () => {
   try {
@@ -21,6 +22,7 @@ const clearDatabase = async () => {
     await Branch.deleteMany({});
     await Subject.deleteMany({});
     await Attendance.deleteMany({});
+    await User.deleteMany({});
     
     console.log("✅ Database cleared successfully!");
     console.log("🔄 Please restart the server to re-seed with hashed passwords");
